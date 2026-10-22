@@ -39,7 +39,6 @@
 
 = Motivation and problem
 
-
 Transportation agencies are responsible for maintaining a large number of bridges while working with limited budgets, time, and inspection resources. Bridge condition can vary depending on factors such as age, structural characteristics, material type, and traffic demand. Therefore, identifying bridges that may require greater maintenance attention is an important part of infrastructure management.
 #v(0.5em)
 The goal of this project is to investigate whether historical bridge inventory data can be used to predict bridge condition. By identifying characteristics associated with bridges in poorer condition, the analysis may provide useful information for prioritizing inspection, maintenance, and rehabilitation activities. The project will focus not only on prediction performance but also on identifying which bridge characteristics are most strongly associated with differences in bridge condition.
