@@ -236,25 +236,42 @@ Among labeled observations, 338,609 are Good (58.20%), 211,477 Fair (36.35%), an
 #figure(image("figures/01_condition.svg", width: 100%), caption: [Condition distribution among 581,785 labeled bridge-year observations. Poor is the smallest class, motivating class-specific evaluation.]) <condition-fig>
 
 == Bridge Age and Condition
-The age distributions differ substantially across classes (@age-fig). Median ages are 24, 47, and 57 years for Good, Fair, and Poor observations, respectively; their means are 27.33, 50.63, and 64.54 years. Among labeled records with known age, the proportion classified Poor rises from 0.21% for ages 0--19 to 2.21% for 20--39, 8.77% for 40--59, 11.31% for 60--79, and 20.17% for 80 or older. These are within-band percentages, not shares of all Poor bridges.
+The age distributions differ substantially across classes (@age-fig). Median ages are 24, 47, and 57 years for Good, Fair, and Poor observations, respectively; their means are 27.33, 50.63, and 64.54 years.
+
+Among labeled records with known age, the proportion classified Poor increases from 0.21% for ages 0–19 to 2.21% for ages 20–39, 8.77% for ages 40–59, 11.31% for ages 60–79, and 20.17% for ages 80 or older. These are within-band percentages, not shares of all Poor bridges.
 
 #figure(image("figures/02_age.svg", width: 100%), caption: [(a) Age by condition; boxes show quartiles, center lines show medians, and whiskers extend to the last observation within 1.5 interquartile ranges. Outlier points are hidden for readability, but retained in the statistics. (b) Poor-condition percentage within each age band. Both panels use 580,652 records with known condition and age. Older observations have higher Poor prevalence in this sample.]) <age-fig>
 
 These results support age as a candidate predictor, but they do not isolate a causal age effect. A bridge can appear repeatedly, and age can be associated with material, design, rehabilitation, and reporting period. The distributions also overlap. Consequently, age alone will not be assumed to determine condition, and no significance tests treating all bridge-year rows as independent are reported.
 
 == Material and Structural Characteristics
-@material-fig compares class composition within the six most common material categories and a pooled smaller-material category. The Poor percentage is 13.93% for Steel, 6.77% for Steel Continuous, 5.89% for Concrete, and 3.32% for Prestressed Concrete. Continuous Concrete and Continuous Prestressed Concrete have Poor shares of 2.82% and 2.01%, respectively. Material categories use the export's labels; continuous and noncontinuous types are kept separate.
+@material-fig compares class composition within the six most common material categories and a pooled smaller-material category. The Poor percentage is 13.93% for Steel, 6.77% for Steel Continuous, 5.89% for Concrete, and 3.32% for Prestressed Concrete. Continuous Concrete and Continuous Prestressed Concrete have Poor shares of 2.82% and 2.01%, respectively.
+
+Material categories use the export's labels; continuous and noncontinuous types are kept separate.
+
+The largest design categories are Box Beam or Girders – Multiple (202,962 observations), Stringer/Multi-beam or Girder (167,672), and Culvert (104,985). These design counts include records without a condition label.
+
+Together with the width audit, this mix shows that the dataset includes substantially different structural configurations. Material and design should therefore enter the model as categorical predictors.
+
+Unadjusted material differences may reflect age, design, ownership, and exposure differences, so they do not establish that any material intrinsically deteriorates faster.
+
+
 
 #figure(image("figures/03_material.svg", width: 100%), caption: [Condition percentages within material groups. Labels give labeled bridge-year counts. The six largest raw material groups are shown separately; smaller groups are pooled. The 193 labeled records with missing material are omitted from this figure. Unadjusted material differences motivate multivariable analysis rather than a causal ranking of materials.]) <material-fig>
 
 The largest design categories are Box Beam or Girders - Multiple (202,962 observations), Stringer/Multi-beam or Girder (167,672), and Culvert (104,985). These design counts include records without a condition label. Together with the width audit, this mix shows that the dataset includes substantially different structural configurations. Material and design should therefore enter the model as categorical predictors. Unadjusted material differences may reflect age, design, ownership, and exposure differences, so they do not establish that any material intrinsically deteriorates faster.
 
 == Traffic and Geometric Characteristics
-Traffic distributions overlap across classes (@traffic-fig). Median ADT is 225 vehicles/day for Good, 650 for Fair, and 350 for Poor observations. Thus, the median does not increase monotonically from Good to Poor. Traffic remains a plausible complementary predictor, but this EDA does not support a simple claim that higher traffic alone implies poorer condition. The figure uses a log10(1 + ADT) scale and retains traffic zeros.
+Traffic distributions overlap across classes (@traffic-fig). Median ADT is 225 vehicles/day for Good, 650 for Fair, and 350 for Poor observations. Thus, the median does not increase monotonically from Good to Poor.
+
+Traffic remains a plausible complementary predictor, but this EDA does not support the simple claim that higher traffic alone implies poorer condition. The figure uses a log10(1 + ADT) scale and retains traffic zeros.
+
 
 #figure(image("figures/04_traffic.svg", width: 100%), caption: [ADT by condition on a log10(1 + ADT) scale, with tick labels expressed in vehicles/day. Box and whisker conventions match @age-fig; outlier points are hidden. The 581,785 labeled observations show substantial overlap and a nonmonotonic ordering of class medians.]) <traffic-fig>
 
-Median structure lengths are 62.0, 76.1, and 72.2 ft for Good, Fair, and Poor, respectively. Median deck areas are 1,811, 2,334, and 2,057 sq. ft. These contrasts likewise do not follow a monotonic class ordering. Geometry may add information in combination with age and design, but redundant geometric predictors and the coding of culverts will need attention when interpreting model importance.
+Median structure lengths are 62.0, 76.1, and 72.2 ft for Good, Fair, and Poor, respectively. Median deck areas are 1,811, 2,334, and 2,057 sq. ft.
+
+These contrasts likewise do not follow a monotonic class ordering. Geometry may add information in combination with age and design, but redundant geometric predictors and the coding of culverts will need attention when interpreting model importance.
 
 == Reporting-Year Patterns and Data Limitations
 The share of labeled records classified Good decreases from 70.91% in 2002 to 44.61% in 2025, while the Poor share increases from 3.58% to 9.52% (@time-fig(a)). The annual labeled sample grows from 20,724 to 26,927. These curves describe the supplied cohort and its changing observed composition; they do not establish statewide causal deterioration rates. All 26,927 grouping identifiers occur in 2025. Combined with InfoBridge's current-submittal selection behavior @fhwa_infobridge, this is consistent with historical records linked to the selected 2025 inventory. It should not be assumed to include bridges retired before 2025 or the complete historical Illinois inventory.
@@ -267,20 +284,20 @@ The analysis is descriptive and observation-weighted: bridges recorded for more 
 
 = Predictive Modeling
 == Task, Features, and Practical Use
-Deliverable 3 will compare models for the recorded Good/Fair/Poor class in the same reporting year. A successful model could support retrospective screening and identify inventory characteristics associated with condition, but should supplement inspection information rather than determine maintenance decisions alone. No trained-model performance is claimed in this deliverable.
+Deliverable 3 will compare models for the recorded Good/Fair/Poor class in the same reporting year. A successful model could support retrospective screening and identify inventory characteristics associated with condition, but it should supplement inspection information rather than determine maintenance decisions alone. No trained-model performance is claimed in this deliverable.Candidate inputs are age, ADT, truck share, owner agency, material, design, span count, structure length, maximum span, deck width, deck area, and reporting year. Historical and 2025 structure identifiers are excluded as predictors; the latter is retained only for grouping. Constant state fields are excluded.Year Built is omitted when age and reporting year are present because it is algebraically redundant with them. Target-derived component ratings will not be introduced as inputs.A model excluding reporting year will be compared to assess reliance on period-specific patterns.
 
-Candidate inputs are age, ADT, truck share, owner agency, material, design, span count, structure length, maximum span, deck width, deck area, and reporting year. Historical and 2025 structure identifiers are excluded as predictors; the latter is retained only for grouping. Constant state fields are excluded. Year Built is omitted when age and reporting year are present because it is algebraically redundant with them. Target-derived component ratings will not be introduced as inputs. A model excluding reporting year will be compared to assess reliance on period-specific patterns.
+
 
 == Preprocessing and Candidate Models
 After group assignment, all learned preprocessing will be fitted using training data only. Invalid span counts will become missing. Numeric missing values will receive training-set medians and explicit missing indicators; missing categorical values will form an Unknown category. Categories will be one-hot encoded with unseen categories handled safely. Zero-width coding will be retained as an indicator, with positive width represented separately and conditional on design; other nonpositive geometric measurements will be flagged and treated as unavailable where physically inappropriate. Traffic zeros will be retained with a separate indicator. Log1p transformations will be considered for ADT and positive size variables, with continuous inputs standardized for logistic regression. No information will be carried backward from later records to fill earlier missing measurements.
-
+#v(0.5em)
 The first comparator will predict the most frequent training class. A regularized multinomial logistic regression will provide a relatively transparent baseline. A random forest will then test whether nonlinear relationships and interactions improve classification. Class weighting will be considered for both models because Poor represents only 5.45% of the labeled sample. Regularization, tree depth, minimum leaf size, and weighting choices will be selected on the validation set. Model complexity will be limited to choices feasible for this tabular dataset.
 
 == Grouped Validation and Evaluation
 The primary evaluation will hold out entire bridges to assess transfer to bridges unseen during training. A reproducible proposed split uses the 2025 structure identifier, seed 492, and approximate proportions of 60% training, 20% validation, and 20% test bridges. Bridge groups are stratified by their latest available nonmissing class, used only to balance group assignment. All annual records of a bridge remain in its assigned partition. The supplied manifest allocates 16,156 bridges and 348,774 labeled rows to training; 5,385 bridges and 116,575 rows to validation; and 5,386 bridges and 116,436 rows to testing. These are prepared partitions, not model results.
-
+#v(0.5em)
 The held-out test set will be used once after selecting the pipeline and model. Macro-F1 will be the primary comparison metric, accompanied by balanced accuracy, overall accuracy, precision/recall/F1 for each class, and a confusion matrix. Poor recall will quantify missed Poor observations, while Poor precision will characterize false alarms. If uncertainty intervals are reported, resampling will occur at the bridge-group level rather than independently across annual rows.
-
+#v(0.5em)
 This grouped evaluation does not test future-year forecasting, because records from overlapping reporting years are present across groups. As a separate robustness check, a chronological evaluation can train on 2002--2018, validate on 2019--2021, and test on 2022--2025. Allowing a bridge to recur in that chronological design addresses later-year classification for known bridges and must be reported as a different estimand. A future deterioration forecast would additionally require a defined horizon and correctly aligned future targets, which are outside the current classification plan.
 
 
