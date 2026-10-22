@@ -196,7 +196,7 @@ The export is comma-delimited with single-quoted text fields, including some cat
 
   caption: [Raw missingness in the 582,165 retained observations. All remaining exported fields have zero blank entries; coded zeros and invalid counts are audited separately.],
 
-)
+) <missing>
 
 Span counts contain 18 negative and 1,035 zero values, in addition to one blank. Nonpositive span counts are flagged and set to missing for valid-count summaries and planned model inputs. Their original values remain available in the source data. Traffic contains 755 zeros; these are retained and flagged because the export alone does not establish whether they represent no traffic or a reporting issue. Maximum span and deck area contain 1,866 and 38 zeros, respectively; these require interpretation before use as physical measurements.
 
