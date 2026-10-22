@@ -48,8 +48,8 @@ In order to accomplish this, we propose using historical bridge inventory data t
 
 = Data and Prediction Target
 
-This project will use National Bridge Inventory (NBI) data for Illinois, obtained from the Federal Highway Administration's LTBP InfoBridge @fhwa_infobridge.  This data was downloaded in tabular format and includes 582,165 bridge-year observations from 2002 to 2025 with 18 attributes. Each record represents a single bridge for a given year and contains information about identification, ownership, structure, traffic, dimensions, and condition. The data is formatted for use in statistical analyses and predictive modeling. The 18 attributes included in the dataset are summarized in @nbi-attributes and @nbi-attributes-continued. A list of the 18 attributes included in the dataset is provided in the accompanying tables.
-Our primary prediction target is Bridge Condition. Bridge Condition is categorized into three levels: Good, Fair, and Poor. Thus, our prediction task will be treated as a classification problem.While we will use identification variables for organization and tracking purposes, they will not be used as predictive features. Since State Code and State Name are constant for the Illinois-only dataset, they will not be useful for predicting condition either.
+This project will use National Bridge Inventory (NBI) data for Illinois, obtained from the Federal Highway Administration's LTBP InfoBridge @fhwa_infobridge.  This data was downloaded in tabular format and includes 582,165 bridge-year observations from 2002 to 2025 with 18 attributes. Each record represents a single bridge for a given year and contains information about identification, ownership, structure, traffic, dimensions, and condition. The data is formatted for use in statistical analyses and predictive modeling. The 18 attributes included in the dataset are summarized in @nbi-attributes and @nbi-attributes-continued. 
+
 
 
 #figure(
@@ -153,7 +153,7 @@ Our primary prediction target is Bridge Condition. Bridge Condition is categoriz
 ) <nbi-attributes-continued>
 
 #v(0.5em)
-The primary prediction target will be Bridge Condition, which classifies bridges as Good, Fair, or Poor. Therefore, the predictive task will be treated as a classification problem. Identification variables such as Structure Number will be retained for organizing and tracking observations but will not be used directly as predictive features. Because State Code and State Name are constant for the Illinois-only dataset, they will also not provide useful information for predicting condition.
+Our primary prediction target is Bridge Condition. Bridge Condition is categorized into three levels: Good, Fair, and Poor. Thus, our prediction task will be treated as a classification problem.While we will use identification variables for organization and tracking purposes, they will not be used as predictive features. Since State Code and State Name are constant for the Illinois-only dataset, they will not be useful for predicting condition either.
 
 
 
@@ -161,7 +161,7 @@ The primary prediction target will be Bridge Condition, which classifies bridges
 = Exploratory Data Analysis
 == Analysis Workflow and Data Quality
 
-The export is comma-delimited with single-quoted text fields, including some categories containing commas. It is read with a single-quote text delimiter to preserve all columns without discarding malformed-looking lines. Identifiers remain strings to retain leading zeros. Numeric conversion is checked for unexpected parsing failures. Blank categories are treated as missing, the study period is restricted to 2002--2025, and the bridge-year key is checked for duplicates. Reported age agrees with reporting year minus year built for all 580,971 nonmissing ages.
+The export is comma-separated with single-quoted text fields and includes some categories with commas. To ensure all columns are preserved without losing any potentially malformed lines, we read the export with a single-quote text delimiter. Identifiers are kept as strings to preserve leading zeros. We check for unexpected parsing failures when converting numeric values. We treat blank categories as missing, limit our study period to 2002–2025, and verify that the bridge-year key has no duplicate entries. Reported age agrees with reporting year minus year built for all 580,971 non-missing ages.
 
 @missing shows the nonzero raw missing counts. The 380 records without a target are retained for the inventory audit but excluded from class comparisons and future supervised training, leaving *581,785 labeled observations*. There is no target imputation. For each EDA comparison, records missing the relevant variable are omitted only from that comparison; other available records are retained.
 
@@ -193,12 +193,12 @@ The export is comma-delimited with single-quoted text fields, including some cat
 
 ) <missing>
 
-Span counts contain 18 negative and 1,035 zero values, in addition to one blank. Nonpositive span counts are flagged and set to missing for valid-count summaries and planned model inputs. Their original values remain available in the source data. Traffic contains 755 zeros; these are retained and flagged because the export alone does not establish whether they represent no traffic or a reporting issue. Maximum span and deck area contain 1,866 and 38 zeros, respectively; these require interpretation before use as physical measurements.
-
-Deck width needs special treatment: 72,503 records have width zero, and 71,995 of these (99.30%) are coded as culverts. FHWA documents zero deck-width coding for culverts, structures under fill, and structures without structural decks @fhwa_condition. Therefore, width zeros are not automatically treated as erroneous or used to exclude culverts. Planned preprocessing will retain a zero-width indicator, preserve design type, and distinguish positive measured width from this coding pattern. Extreme positive dimensions are retained for EDA and flagged for review rather than removed using an arbitrary cutoff.
+Span counts contain 18 negative and 1,035 zero values, in addition to one blank. Non-positive span counts are identified and set to missing for valid-count summaries and planned model inputs. However, their original values are still available in the source data. Traffic has 755 zeros; these are retained and flagged since the export alone cannot determine whether they represent no traffic or a reporting error. Maximum span and deck area have 1,866 and 38 zeros, respectively; these require interpretation prior to being used as physical measurements.
+Deck width requires special handling: 72,503 records have width zero, and 71,995 of these (99.30%) are coded as culverts. FHWA documents zero deck-width coding for culverts, structures under fill, and structures without structural decks @fhwa_condition. Therefore, width zeros are not automatically treated as erroneous or used to exclude culverts. Planned preprocessing will retain a zero-width indicator, preserve design type, and distinguish positive measured width from this coding pattern. Extreme positive dimensions are retained for EDA and flagged for review rather than removed using an arbitrary cutoff.
 
 == Numeric Distributions
-@summary reports numerical characteristics using available observations. Traffic and bridge dimensions are right-skewed in this sample. ADT has a median of 309 vehicles/day, a mean of 5,257, and a maximum of 590,800. Deck area has a median of 1,946 sq. ft. compared with a mean of 5,425 sq. ft. These differences support using medians and interquartile ranges alongside means, and considering logarithmic transformations for traffic and positive geometric variables.
+@summary reports numerical characteristics using available observations. Right-skewness is observed in both traffic and bridge dimensions.
+The median ADT is 309 vehicles/day, the mean ADT is 5,257 vehicle/day, a mean of 5,257, and a maximum of 590,800. Deck area has a median of 1,946 sq. ft. compared with a mean of 5,425 sq. ft. These differences support using medians and interquartile ranges alongside means, and considering logarithmic transformations for traffic and positive geometric variables.
 
 #figure(
 
