@@ -39,6 +39,7 @@
 
 = Motivation and problem
 
+
 Transportation agencies are responsible for maintaining a large number of bridges while working with limited budgets, time, and inspection resources. Bridge condition can vary depending on factors such as age, structural characteristics, material type, and traffic demand. Therefore, identifying bridges that may require greater maintenance attention is an important part of infrastructure management.
 #v(0.5em)
 The goal of this project is to investigate whether historical bridge inventory data can be used to predict bridge condition. By identifying characteristics associated with bridges in poorer condition, the analysis may provide useful information for prioritizing inspection, maintenance, and rehabilitation activities. The project will focus not only on prediction performance but also on identifying which bridge characteristics are most strongly associated with differences in bridge condition.
@@ -157,6 +158,11 @@ Next, classification models will be developed to predict bridge condition using 
 In addition to predicting bridge condition, the study will examine which predictor variables are most useful for distinguishing between Good, Fair, and Poor bridges. For example, the analysis can evaluate whether bridge age, traffic demand, structural material, bridge dimensions, or other characteristics provide important information for predicting condition. The purpose is not to establish that these variables directly cause deterioration, but to identify patterns and characteristics associated with bridge condition.
 #v(0.5em)
 This analysis is expected to be useful because transportation agencies must determine where limited inspection, maintenance, and rehabilitation resources should be directed. If existing bridge characteristics can help identify bridges that are more likely to be in poorer condition, predictive models may provide additional information to support maintenance planning. The results could therefore contribute to a more data-driven approach for prioritizing bridge maintenance and rehabilitation activities.
+
+= Team Plan
+The project work will be divided among team members while major decisions and final results will be reviewed together. One part of the team will focus on data preparation and cleaning, including checking missing values, selecting appropriate predictor variables, and organizing repeated bridge records across years. Another part will focus on exploratory data analysis and visualization to examine patterns between bridge characteristics and condition. The remaining work will focus on predictive model development and evaluation, including training classification models and assessing their performance.
+#v(0.5em)
+All team members will contribute to interpreting the results, reviewing the analysis and code, preparing figures and tables, and writing and editing the final report. This approach will allow each team member to contribute to both the technical analysis and the final presentation of the project.
 
 = Exploratory Data Analysis
 == Analysis Workflow and Data Quality
