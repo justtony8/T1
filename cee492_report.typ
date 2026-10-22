@@ -190,7 +190,7 @@ The export is comma-delimited with single-quoted text fields, including some cat
 
     [Main span material], [222], [0.04%],
 
-    [Number of spans], [1], [<0.01%],
+    [Number of spans], [1], [\<0.01%],
 
   ),
 
