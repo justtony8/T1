@@ -40,14 +40,17 @@
 = Motivation and problem
 
 
-Transportation agencies are responsible for maintaining a large number of bridges while working with limited budgets, time, and inspection resources. Bridge condition can vary depending on factors such as age, structural characteristics, material type, and traffic demand. Therefore, identifying bridges that may require greater maintenance attention is an important part of infrastructure management.
+Bridges are essential components of our transportation system. However, due to budget constraints and limited time and resources for inspections, there are many bridges that need maintenance. Bridge conditions can vary based on several factors, including age, structural features, materials used, and how much traffic passes over them. Therefore, it is necessary to identify those bridges that may require additional maintenance efforts.
 #v(0.5em)
-The goal of this project is to investigate whether historical bridge inventory data can be used to predict bridge condition. By identifying characteristics associated with bridges in poorer condition, the analysis may provide useful information for prioritizing inspection, maintenance, and rehabilitation activities. The project will focus not only on prediction performance but also on identifying which bridge characteristics are most strongly associated with differences in bridge condition.
+In order to accomplish this, we propose using historical bridge inventory data to predict bridge condition. We believe that if we can identify characteristics associated with bridges in poor condition, we will be able to prioritize inspections, maintenance, and rehabilitation activities. In addition to evaluating the accuracy of predictions made by models developed from this data, we will attempt to determine which bridge characteristics have the strongest relationship with differences in bridge condition.Transportation agencies are responsible for maintaining a large number of bridges while working with limited budgets, time, and inspection resources. Bridge condition can vary depending on factors such as age, structural characteristics, material type, and traffic demand. Therefore, identifying bridges that may require greater maintenance attention is an important part of infrastructure management.
+
 
 
 = Data and Prediction Target
 
-This project will use National Bridge Inventory (NBI) data for Illinois, obtained from the Federal Highway Administration's LTBP InfoBridge @fhwa_infobridge. The data were downloaded in tabular format and include 582,165 bridge-year observations from 2002 through 2025 with 18 attributes. Each row represents a bridge record for a specific year and includes identification, ownership, structural, traffic, dimensional, and condition information. The data are stored in a tabular format suitable for statistical analysis and predictive modeling. The 18 attributes included in the dataset are summarized in @nbi-attributes and @nbi-attributes-continued.
+This project will use National Bridge Inventory (NBI) data for Illinois, obtained from the Federal Highway Administration's LTBP InfoBridge @fhwa_infobridge.  This data was downloaded in tabular format and includes 582,165 bridge-year observations from 2002 to 2025 with 18 attributes. Each record represents a single bridge for a given year and contains information about identification, ownership, structure, traffic, dimensions, and condition. The data is formatted for use in statistical analyses and predictive modeling. The 18 attributes included in the dataset are summarized in @nbi-attributes and @nbi-attributes-continued. A list of the 18 attributes included in the dataset is provided in the accompanying tables.
+Our primary prediction target is Bridge Condition. Bridge Condition is categorized into three levels: Good, Fair, and Poor. Thus, our prediction task will be treated as a classification problem.While we will use identification variables for organization and tracking purposes, they will not be used as predictive features. Since State Code and State Name are constant for the Illinois-only dataset, they will not be useful for predicting condition either.
+
 
 #figure(
   caption: [Description of NBI attributes used in the analysis (Part 1)],
@@ -154,6 +157,7 @@ The primary prediction target will be Bridge Condition, which classifies bridges
 
 = Exploratory Data Analysis
 == Analysis Workflow and Data Quality
+
 The export is comma-delimited with single-quoted text fields, including some categories containing commas. It is read with a single-quote text delimiter to preserve all columns without discarding malformed-looking lines. Identifiers remain strings to retain leading zeros. Numeric conversion is checked for unexpected parsing failures. Blank categories are treated as missing, the study period is restricted to 2002--2025, and the bridge-year key is checked for duplicates. Reported age agrees with reporting year minus year built for all 580,971 nonmissing ages.
 
 @missing shows the nonzero raw missing counts. The 380 records without a target are retained for the inventory audit but excluded from class comparisons and future supervised training, leaving *581,785 labeled observations*. There is no target imputation. For each EDA comparison, records missing the relevant variable are omitted only from that comparison; other available records are retained.
