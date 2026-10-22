@@ -158,11 +158,6 @@ In addition to predicting bridge condition, the study will examine which predict
 #v(0.5em)
 This analysis is expected to be useful because transportation agencies must determine where limited inspection, maintenance, and rehabilitation resources should be directed. If existing bridge characteristics can help identify bridges that are more likely to be in poorer condition, predictive models may provide additional information to support maintenance planning. The results could therefore contribute to a more data-driven approach for prioritizing bridge maintenance and rehabilitation activities.
 
-= Team Plan
-The project work will be divided among team members while major decisions and final results will be reviewed together. One part of the team will focus on data preparation and cleaning, including checking missing values, selecting appropriate predictor variables, and organizing repeated bridge records across years. Another part will focus on exploratory data analysis and visualization to examine patterns between bridge characteristics and condition. The remaining work will focus on predictive model development and evaluation, including training classification models and assessing their performance.
-#v(0.5em)
-All team members will contribute to interpreting the results, reviewing the analysis and code, preparing figures and tables, and writing and editing the final report. This approach will allow each team member to contribute to both the technical analysis and the final presentation of the project.
-
 = Exploratory Data Analysis
 == Analysis Workflow and Data Quality
 The export is comma-delimited with single-quoted text fields, including some categories containing commas. It is read with a single-quote text delimiter to preserve all columns without discarding malformed-looking lines. Identifiers remain strings to retain leading zeros. Numeric conversion is checked for unexpected parsing failures. Blank categories are treated as missing, the study period is restricted to 2002--2025, and the bridge-year key is checked for duplicates. Reported age agrees with reporting year minus year built for all 580,971 nonmissing ages.
