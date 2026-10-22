@@ -92,25 +92,8 @@ Our primary prediction target is Bridge Condition. Bridge Condition is categoriz
     [vehicles/day],
     [Average number of vehicles crossing the structure per day.],
 
-    [43A - Main Span Material],
-    [category],
-    [Material classification of the bridge main span, such as concrete, steel, or other structural materials.],
+  
 
-    [43B - Main Span Design],
-    [category],
-    [Structural design or construction type of the bridge main span, such as beam, girder, truss, arch, or other design types.],
-
-    [45 - Number of Spans in Main Unit],
-    [count],
-    [Number of individual spans contained in the main structural unit of the bridge.],
-
-    [49 - Structure Length],
-    [ft],
-    [Total length of the bridge structure measured along its centerline.],
-
-    [CAT10 - Bridge Condition],
-    [category],
-    [Overall bridge condition classification, expressed as Good, Fair, or Poor.],
 
   ),
 ) <nbi-attributes>
@@ -130,6 +113,26 @@ Our primary prediction target is Bridge Condition. Bridge Condition is categoriz
     [Bridge Age],
     [yr],
     [Age of the bridge at the time of the record, calculated from the dataset year and the year built.],
+
+    [43A - Main Span Material],
+    [category],
+    [Material classification of the bridge main span, such as concrete, steel, or other structural materials.],
+
+    [43B - Main Span Design],
+    [category],
+    [Structural design or construction type of the bridge main span, such as beam, girder, truss, arch, or other design types.],
+
+    [45 - Number of Spans in Main Unit],
+    [count],
+    [Number of individual spans contained in the main structural unit of the bridge.],
+
+    [49 - Structure Length],
+    [ft],
+    [Total length of the bridge structure measured along its centerline.],
+
+    [CAT10 - Bridge Condition],
+    [category],
+    [Overall bridge condition classification, expressed as Good, Fair, or Poor.],
 
     [CAT29 - Deck Area],
     [sq. ft.],
