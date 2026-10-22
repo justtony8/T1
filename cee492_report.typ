@@ -92,8 +92,17 @@ This project will use National Bridge Inventory (NBI) data for Illinois, obtaine
     [vehicles/day],
     [Average number of vehicles crossing the structure per day.],
 
-  
+    [Bridge Age],
+    [yr],
+    [Age of the bridge at the time of the record, calculated from the dataset year and the year built.],
 
+    [43A - Main Span Material],
+    [category],
+    [Material classification of the bridge main span, such as concrete, steel, or other structural materials.],
+
+    [43B - Main Span Design],
+    [category],
+    [Structural design or construction type of the bridge main span, such as beam, girder, truss, arch, or other design types.],
 
   ),
 ) <nbi-attributes>
@@ -110,17 +119,7 @@ This project will use National Bridge Inventory (NBI) data for Illinois, obtaine
       [*Description*],
     ),
 
-    [Bridge Age],
-    [yr],
-    [Age of the bridge at the time of the record, calculated from the dataset year and the year built.],
-
-    [43A - Main Span Material],
-    [category],
-    [Material classification of the bridge main span, such as concrete, steel, or other structural materials.],
-
-    [43B - Main Span Design],
-    [category],
-    [Structural design or construction type of the bridge main span, such as beam, girder, truss, arch, or other design types.],
+    
 
     [45 - Number of Spans in Main Unit],
     [count],
