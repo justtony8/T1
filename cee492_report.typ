@@ -406,35 +406,15 @@ Despite achieving 70.53% accuracy, the model could not successfully identify the
 
 == Discussion and Limitations
 
-The results indicate that multinomial logistic regression can classify Good-condition bridges with relatively high effectiveness and Fair-condition bridges with moderate effectiveness. However, the model was unable to correctly identify any Poor-condition observations.
+The multinomial logistic regression model identified Good-condition bridges more reliably than Fair-condition bridges and missed every Poor-condition bridge in the evaluation (0% recall). Overall accuracy was 70.53%. Averaging recall across the three classes gave a balanced accuracy of 47.12%. For maintenance planning, a Poor-condition bridge classified as Good or Fair could be overlooked when agencies prioritize inspections or repairs.
 
-One possible explanation is the substantial class imbalance in the dataset. Good observations represented 58.20% of the labeled records, while Fair and Poor represented 36.35% and 5.45%, respectively.
+Class imbalance may partly explain why the model missed the Poor bridges. They accounted for just 5.45% of the labeled records, compared with 36.35% for Fair and 58.20% for Good. The model gave each observation equal weight during training, so the small number of Poor observations may have had limited influence on the fit.
 
-Because the current model did not incorporate class-specific weighting, it may have favored the more frequent Good and Fair categories when minimizing the overall training loss.
+The model may also have missed nonlinear relationships and interactions among bridge characteristics. For example, the relationship between age and condition may vary with structural material, bridge design, or traffic demand. The model did not include terms for those interactions. The NBI data used in this analysis also lacked detailed maintenance histories, environmental exposure measurements, and component-level condition ratings that could help explain differences in deterioration.
 
-Another possible explanation is the limited ability of the current logistic regression specification to represent nonlinear relationships and interactions between bridge characteristics.
+A next step would be to test whether class weighting improves recall for Poor-condition bridges. Adding interactions among age, structural material, and bridge geometry could help capture some of the relationships the current model misses. A comparison with a random forest could also show whether a more flexible model performs better. Sensitivity analyses could assess how the results change when truck traffic percentage, reporting year, or culvert structures are excluded.
 
-For example, the relationship between bridge age and condition may vary depending on structural material, bridge design, and traffic demand. Such interactions were not explicitly incorporated into the current model.
-
-Furthermore, the available NBI dataset did not include detailed maintenance histories, environmental exposure measurements, or component-level condition ratings. These omitted factors may provide additional information relevant to bridge deterioration and condition classification.
-
-The findings emphasize the importance of evaluating classification models using multiple performance metrics. Although the model achieved an overall accuracy of 70.53%, its balanced accuracy of 47.12% and Poor recall of zero indicate substantial limitations.
-
-For infrastructure maintenance applications, incorrectly classifying Poor-condition bridges as Good or Fair is particularly concerning because these bridges may require additional inspection or maintenance attention.
-
-Future improvements should therefore focus on addressing class imbalance and enhancing model flexibility. Class-weighted multinomial logistic regression may improve the identification of Poor observations by assigning greater importance to minority-class errors during training.
-
-Additional feature engineering, including interaction terms between bridge age, structural material, and geometric characteristics, may also improve model performance.
-
-Nonlinear classifiers such as random forests could be investigated to assess whether more complex relationships improve classification performance.
-
-Sensitivity analyses excluding truck traffic percentage, reporting year, or culvert structures would also help evaluate the influence of data characteristics on model predictions.
-
-These additional analyses have not yet been implemented. Therefore, their potential improvements remain to be tested.
-
-Overall, the current multinomial logistic regression model provides an initial benchmark for bridge condition classification. However, its inability to identify Poor-condition bridges limits its practical application to maintenance prioritization.
-
-Further model development and validation are necessary before the predictions can be considered reliable for infrastructure management decisions.
+The current model provides a baseline for these comparisons. Before its predictions can inform maintenance priorities, further validation would need to show that Poor-condition bridges can be identified reliably.
 
 
 = Team Plan
