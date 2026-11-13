@@ -281,8 +281,6 @@ The analysis is descriptive and observation-weighted: bridges recorded for more 
 
 = Predictive Modeling
 
-= Predictive Modeling
-
 == Task, Features, and Practical Use
 
 This study implemented multinomial logistic regression to classify bridge conditions into three categories: Good, Fair, and Poor, using Illinois National Bridge Inventory (NBI) records from 2002 to 2025. The objective was to evaluate whether bridge inventory characteristics could be used to predict recorded bridge conditions, with particular attention to identifying Poor-condition bridges.
