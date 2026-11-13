@@ -33,7 +33,7 @@
       email: "heejaej2@illinois.edu",
     ),
   ),
-  index-terms: ("bridge condition", "National Bridge Inventory", "classification", "machine learning"),
+  index-terms: ("bridge condition", "National Bridge Inventory", "classification", "K-means clustering", "machine learning"),
   bibliography: bibliography("refs.bib"),
 )
 
@@ -264,7 +264,7 @@ Traffic distributions overlap across classes (@traffic-fig). Median ADT is 225 v
 Traffic remains a plausible complementary predictor, but this EDA does not support the simple claim that higher traffic alone implies poorer condition. The figure uses a log10(1 + ADT) scale and retains traffic zeros.
 
 
-#figure(image("figures/04_traffic.svg", width: 100%), caption: [ADT by condition on a log10(1 + ADT) scale, with tick labels expressed in vehicles/day. Box and whisker conventions match @age-fig; outlier points are hidden. The 581,785 labeled observations show substantial overlap and a nonmonotonic ordering of class medians.]) <traffic-fig>
+#figure(image("figures/04_traffic.svg", width: 80%), caption: [ADT by condition on a log10(1 + ADT) scale, with tick labels expressed in vehicles/day. Box and whisker conventions match @age-fig; outlier points are hidden. The 581,785 labeled observations show substantial overlap and a nonmonotonic ordering of class medians.]) <traffic-fig>
 
 Median structure lengths are 62.0, 76.1, and 72.2 ft for Good, Fair, and Poor, respectively. Median deck areas are 1,811, 2,334, and 2,057 sq. ft.
 
@@ -284,7 +284,9 @@ The analysis is descriptive and observation-weighted: bridges recorded for more 
 
 == Task, Features, and Practical Use
 
-In this study, we used multinomial logistic regression to classify bridge conditions into three groups: Good, Fair, and Poor, using Illinois National Bridge Inventory (NBI) data from 2002 to 2025. Our goal was to examine whether bridge information could help predict bridge conditions, with particular attention to identifying bridges in Poor condition. The model used several features, including bridge age, daily traffic, truck traffic percentage, owner agency, main span material and design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year. We did not use bridge identification numbers as predictive features because they do not represent physical bridge characteristics. Instead, these identifiers were used to group records belonging to the same bridge. Year built was also excluded because it can be calculated using bridge age and reporting year.
+In this study, we used multinomial logistic regression to classify bridge conditions as Good, Fair, or Poor using Illinois National Bridge Inventory (NBI) data from 2002 to 2025. We also specified a complementary K-means clustering analysis to identify groups of bridges with similar numerical characteristics without using condition labels. The supervised analysis examines whether bridge information can predict recorded condition, with particular attention to Poor-condition bridges. The clustering analysis instead examines whether distinct bridge profiles are present and whether their condition distributions differ.
+
+The analyses use bridge age, daily traffic, truck traffic percentage, owner agency, main span material and design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year where appropriate. Bridge identifiers are excluded as predictive or clustering features because they do not represent physical characteristics. They are used only to group records belonging to the same bridge. Year built is also excluded because it can be calculated from bridge age and reporting year.
 
 #v(0.5em)
 
@@ -301,6 +303,18 @@ Invalid span counts and nonpositive geometric measurements were treated as missi
 #v(0.5em)
 
 A multinomial logistic regression classifier with L2 regularization was implemented in Julia using MLJ and MLJLinearModels. Multinomial logistic regression was selected because the prediction target consists of three categories, Good, Fair, and Poor, and the method provides a relatively simple and interpretable classification framework. Three regularization parameters (lambda = 0.01, 0.1, and 1.0) were evaluated to identify the best-performing model based on validation macro-F1.
+
+== Complementary K-means Clustering
+
+K-means clustering provided an unsupervised view of the bridge inventory rather than a second condition classifier. The clustering inputs were the imputed and standardized numerical variables: bridge age, log-transformed average daily traffic, truck traffic percentage, number of spans, log-transformed structure length, maximum span length, deck width, deck area, and reporting year. Condition labels, identifiers, and one-hot-encoded categorical variables were not used to form the clusters. Excluding the condition label allowed the analysis to test whether bridge profiles emerged independently of the recorded outcome.
+
+#v(0.5em)
+
+The clustering model was fitted using training data only. Candidate cluster counts from $k = 2$ through $k = 8$ were compared using within-cluster sum of squares and the average silhouette score calculated on a reproducible sample of 2,000 training observations. For each value of $k$, 20 initial centroid sets and random seed 492 were used to reduce sensitivity to initialization. The selected model assigned validation and test observations to their nearest training-derived centroids without refitting the centroids.
+
+#v(0.5em)
+
+Cluster interpretation used centroid profiles, cluster sizes, and the proportions of Good, Fair, and Poor observations assigned to each cluster. These condition proportions describe associations between bridge profiles and recorded condition; they are not treated as classification accuracy or evidence of causal deterioration. K-means assumes roughly compact clusters under Euclidean distance, so strongly overlapping or irregular bridge groups may limit its usefulness.
 
 == Grouped Validation and Model Selection
 
@@ -377,7 +391,7 @@ The selected multinomial logistic regression model was evaluated on the held-out
 The confusion matrix in @model-confusion-fig provides additional information about the classification errors. Among the 6,492 actual Poor observations, 1,388 were incorrectly predicted as Good, while 5,104 were predicted as Fair. None of the Poor observations were correctly identified. The model predicted only ten observations as Poor, but all ten predictions were incorrect. These results demonstrate that the classifier strongly favored Good and Fair predictions and was unable to identify the minority Poor category, despite achieving relatively high overall accuracy.
 
 #figure(
-  image("model_results/confusion_matrix.png", width: 100%),
+  image("model_results/confusion_matrix.png", width: 90%),
   caption: [Confusion matrix for the selected multinomial logistic regression model on the held-out test dataset. Rows represent actual conditions and columns represent predicted conditions.]
 ) <model-confusion-fig>
 
@@ -390,13 +404,33 @@ The differences in classification performance are further illustrated in @model-
   caption: [Comparison of class-specific F1 scores for Good, Fair, and Poor bridge conditions on the held-out test dataset.]
 ) <model-f1-fig>
 
+== K-means Clustering Results
+
+Among the candidate values, $k = 2$ produced the highest sampled average silhouette score of 0.3103. The score decreased to 0.1978 for $k = 3$ and remained between 0.1838 and 0.2085 for $k = 4$ through $k = 8$. Within-cluster sum of squares decreased as the number of clusters increased, as expected, but the silhouette comparison supported the more parsimonious two-cluster solution (@kmeans-selection-fig).
+
+#figure(
+  image("kmeans_results/k_selection.png", width: 100%),
+  caption: [K-means model selection using a reproducible sample of 2,000 training observations. The two-cluster solution had the highest average silhouette score, while within-cluster sum of squares decreased as the number of clusters increased.]
+) <kmeans-selection-fig>
+
+#v(0.5em)
+
+The two clusters also differed in held-out condition composition (@kmeans-composition-fig). Cluster 1 contained 83,530 test observations, of which 63.01% were Good, 31.92% were Fair, and 5.07% were Poor. Cluster 2 contained 33,315 observations, with 45.65% Good, 47.59% Fair, and 6.77% Poor. Cluster 2 therefore contained a larger share of Fair and Poor observations, but Poor observations remained uncommon in both groups. The clusters describe broad bridge profiles rather than a separation of the three condition classes.
+
+#figure(
+  image("kmeans_results/test_cluster_condition_composition.png", width: 85%),
+  caption: [Condition composition of held-out test observations assigned to the two training-derived K-means clusters. Condition labels were not used to fit the clusters.]
+) <kmeans-composition-fig>
+
 == Discussion and Limitations
 
 The multinomial logistic regression model identified Good-condition bridges more reliably than Fair-condition bridges and missed every Poor-condition bridge in the evaluation (0% recall). Overall accuracy was 70.53%. Averaging recall across the three classes gave a balanced accuracy of 47.12%. For maintenance planning, a Poor-condition bridge classified as Good or Fair could be overlooked when agencies prioritize inspections or repairs.Class imbalance may partly explain why the model missed the Poor bridges. They accounted for just 5.45% of the labeled records, compared with 36.35% for Fair and 58.20% for Good. The model gave each observation equal weight during training, so the small number of Poor observations may have had limited influence on the fit.
 #v(0.5em)
 The model may also have missed nonlinear relationships and interactions among bridge characteristics. For example, the relationship between age and condition may vary with structural material, bridge design, or traffic demand. The model did not include terms for those interactions. The NBI data used in this analysis also lacked detailed maintenance histories, environmental exposure measurements, and component-level condition ratings that could help explain differences in deterioration.
 #v(0.5em)
-A next step would be to test whether class weighting improves recall for Poor-condition bridges. Adding interactions among age, structural material, and bridge geometry could help capture some of the relationships the current model misses. A comparison with a random forest could also show whether a more flexible model performs better. Sensitivity analyses could assess how the results change when truck traffic percentage, reporting year, or culvert structures are excluded.The current model provides a baseline for these comparisons. Before its predictions can inform maintenance priorities, further validation would need to show that Poor-condition bridges can be identified reliably.
+K-means clustering identified two broad groups with different condition compositions, but it did not isolate Poor-condition bridges. The Poor share was 5.07% in Cluster 1 and 6.77% in Cluster 2, showing substantial overlap between the clusters. The clustering therefore complements the supervised model by describing inventory structure, but it does not directly address the classifier's zero recall for Poor-condition bridges. No predictive-performance claim can be made from these clusters without a separate, prespecified mapping from clusters to condition labels evaluated on held-out data.
+#v(0.5em)
+A next step would be to test whether class weighting improves recall for Poor-condition bridges. Adding interactions among age, structural material, and bridge geometry could help capture some of the relationships the current model misses. A comparison with a random forest could also show whether a more flexible classifier performs better. Sensitivity analyses could assess how the results change when truck traffic percentage, reporting year, or culvert structures are excluded. The current logistic regression model provides a baseline for these comparisons. Before its predictions can inform maintenance priorities, further validation would need to show that Poor-condition bridges can be identified reliably.
 
 
 = Team Plan
