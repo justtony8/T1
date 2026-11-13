@@ -281,30 +281,31 @@ The analysis is descriptive and observation-weighted: bridges recorded for more 
 
 = Predictive Modeling
 
+= Predictive Modeling
+
 == Task, Features, and Practical Use
 
-In this study, we used multinomial logistic regression to classify bridge conditions into three groups: Good, Fair, and Poor. We used Illinois National Bridge Inventory (NBI) data from 2002 to 2025. Our goal was to see if bridge information could help predict bridge conditions. We were especially interested in finding bridges in Poor condition.
+In this study, we used multinomial logistic regression to classify bridge conditions into three groups: Good, Fair, and Poor, using Illinois National Bridge Inventory (NBI) data from 2002 to 2025. Our goal was to examine whether bridge information could help predict bridge conditions, with particular attention to identifying bridges in Poor condition. The model used several features, including bridge age, daily traffic, truck traffic percentage, owner agency, main span material and design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year. We did not use bridge identification numbers as predictive features because they do not represent physical bridge characteristics. Instead, these identifiers were used to group records belonging to the same bridge. Year built was also excluded because it can be calculated using bridge age and reporting year.
 
-The model used several features, including bridge age, daily traffic, truck traffic percentage, owner agency, main span material and design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year. We did not use bridge ID numbers to predict conditions. We only used them to group records from the same bridge. We also removed year built because it can be calculated using bridge age and reporting year.
+#v(0.5em)
 
-The model was used to predict the bridge condition recorded in the same year. It was not designed to predict how bridge conditions will change in the future. The results may help identify bridges that need further inspection. However, engineers still need to inspect these bridges, and the model should not be used alone to make maintenance decisions.
+The model was developed to predict the bridge condition recorded in the same reporting year, rather than forecasting how bridge conditions may change in the future. The predicted condition categories could potentially support preliminary maintenance screening and help transportation agencies identify bridges that may require additional inspections. However, the predictions should be used as supplementary information rather than replacing engineering inspections or directly determining maintenance priorities.
+
 == Data Preprocessing and Model Development
 
-The initial dataset contained 582,165 bridge-year observations. After excluding 380 observations with missing condition labels, 581,785 labeled observations remained for supervised learning.
+The initial dataset contained 582,165 bridge-year observations from 2002 to 2025. After excluding 380 observations with missing bridge condition labels, 581,785 labeled observations remained for supervised learning. Before model training, missing numerical values were replaced using medians calculated from the training dataset, while missing categorical values were assigned an Unknown category. Categorical predictors, including owner agency, main span material, and main span design, were converted into numerical features through one-hot encoding. Selected continuous variables, including average daily traffic, structure length, maximum span length, and deck area, were transformed using log(1+x). Numerical predictors were then standardized using means and standard deviations calculated from the training data.
 
-Missing numerical values were replaced using medians calculated from the training dataset. Missing categorical values were assigned an Unknown category. Categorical predictors, including owner agency, main span material, and main span design, were converted into numerical features through one-hot encoding.
+#v(0.5em)
 
-Selected continuous variables, including average daily traffic, structure length, maximum span length, and deck area, were transformed using log(1+x). Numerical predictors were standardized using means and standard deviations calculated from the training data.
+Invalid span counts and nonpositive geometric measurements were treated as missing where physically inappropriate. Zero-width coding was retained through a separate indicator to account for culverts and other structures without conventional deck-width measurements. Additional indicators were included for missing numerical values and zero traffic observations. These preprocessing procedures were applied consistently to the training, validation, and test datasets, while all learned preprocessing parameters were determined using training data only.
 
-Invalid span counts and nonpositive geometric measurements were treated as missing where physically inappropriate. Zero-width coding was retained through a separate indicator to account for culverts and other structures without conventional deck-width measurements. Additional indicators were included for missing numerical values and zero traffic observations.
+#v(0.5em)
 
-A multinomial logistic regression classifier with L2 regularization was implemented in Julia using MLJ and MLJLinearModels. Three regularization parameters (lambda = 0.01, 0.1, and 1.0) were evaluated to identify the best-performing model based on validation macro-F1.
+A multinomial logistic regression classifier with L2 regularization was implemented in Julia using MLJ and MLJLinearModels. Multinomial logistic regression was selected because the prediction target consists of three categories, Good, Fair, and Poor, and the method provides a relatively simple and interpretable classification framework. Three regularization parameters (lambda = 0.01, 0.1, and 1.0) were evaluated to identify the best-performing model based on validation macro-F1.
 
 == Grouped Validation and Model Selection
 
-To prevent data leakage between training and testing, observations were divided at the bridge level rather than at the individual record level. The 2025 NBI structure identifier was used to group repeated observations of the same bridge.
-
-Bridge groups were stratified according to their latest available nonmissing condition category. A fixed random seed of 492 was used to obtain reproducible assignments, with approximately 60% of bridges allocated to training, 20% to validation, and 20% to testing.
+To prevent data leakage between training and testing, observations were divided at the bridge level rather than at the individual record level. The 2025 NBI structure identifier was used to group repeated observations of the same bridge. Bridge groups were stratified according to their latest available nonmissing condition category. A fixed random seed of 492 was used to obtain reproducible assignments, with approximately 60% of bridges allocated to training, 20% to validation, and 20% to testing. As shown in @model-split-table, the training dataset contained 348,406 observations from 16,156 bridges, while the validation and test datasets contained 116,534 and 116,845 observations, respectively. All records belonging to the same bridge were assigned to the same partition.
 
 #figure(
   table(
@@ -324,9 +325,9 @@ Bridge groups were stratified according to their latest available nonmissing con
   caption: [Distribution of bridges and labeled bridge-year observations across training, validation, and test datasets.]
 ) <model-split-table>
 
-As shown in @model-split-table, the training dataset contained 348,406 observations from 16,156 bridges. The validation and test datasets contained 116,534 and 116,845 observations, respectively. All records belonging to the same bridge were assigned to the same partition.
+#v(0.5em)
 
-The validation dataset was used to compare three regularization parameters. Macro-averaged F1 was selected as the primary model selection metric because the dataset exhibited substantial class imbalance. Poor-condition observations represented only 5.45% of the labeled dataset.
+The validation dataset was used to compare three regularization parameters. Macro-averaged F1 was selected as the primary model selection metric because the dataset exhibited substantial class imbalance, with Poor-condition observations representing only 5.45% of the labeled dataset. Unlike overall accuracy, macro-F1 gives equal importance to each condition category, making it more appropriate for evaluating classification performance when one category is much less frequent than the others. The validation results for the three regularization parameters are presented in @model-validation-table.
 
 #figure(
   table(
@@ -346,17 +347,13 @@ The validation dataset was used to compare three regularization parameters. Macr
   caption: [Validation performance of multinomial logistic regression under different regularization parameters.]
 ) <model-validation-table>
 
-The model with lambda = 0.01 achieved the highest validation macro-F1 score of 0.4599 and an accuracy of 70.62%. Therefore, lambda = 0.01 was selected for the final test evaluation.
+#v(0.5em)
 
-Increasing lambda from 0.01 to 1.0 reduced both accuracy and macro-F1 within the tested range. However, Poor-class recall remained zero for all parameter settings. This indicates that modifying the regularization strength alone did not resolve the model's difficulty in identifying Poor-condition bridges.
+The model with lambda = 0.01 achieved the highest validation macro-F1 score of 0.4599 and an accuracy of 70.62%. Therefore, lambda = 0.01 was selected for the final test evaluation. Increasing lambda from 0.01 to 1.0 reduced both accuracy and macro-F1 within the tested range. However, Poor-class recall remained zero for all three parameter settings, indicating that modifying the regularization strength alone did not resolve the model's difficulty in identifying Poor-condition bridges.
 
 == Model Performance and Evaluation
 
-The selected multinomial logistic regression model was evaluated on the held-out test dataset containing 116,845 bridge-year observations.
-
-The model achieved an overall accuracy of 70.53%, a macro-F1 score of 0.4604, and a balanced accuracy of 47.12%. A total of 82,406 observations were correctly classified.
-
-Although the overall accuracy exceeded 70%, the model showed substantial differences in predictive performance across the three condition categories.
+The selected multinomial logistic regression model was evaluated on the held-out test dataset containing 116,845 bridge-year observations. The model achieved an overall accuracy of 70.53%, a macro-F1 score of 0.4604, and a balanced accuracy of 47.12%, correctly classifying a total of 82,406 observations. Although the overall accuracy exceeded 70%, the model showed substantial differences in predictive performance across the three condition categories. As summarized in @model-class-table, Good-condition bridges achieved the highest recall of 88.07% and an F1 score of 0.8029, indicating that most Good observations were correctly identified. Fair-condition bridges achieved a recall of 53.30% and an F1 score of 0.5783, suggesting that the model had greater difficulty distinguishing Fair observations from other categories. The most significant limitation was observed for Poor-condition bridges, for which both recall and F1 were zero.
 
 #figure(
   table(
@@ -376,33 +373,23 @@ Although the overall accuracy exceeded 70%, the model showed substantial differe
   caption: [Class-specific classification performance of the selected multinomial logistic regression model on the held-out test dataset.]
 ) <model-class-table>
 
-As shown in @model-class-table, the model performed best for Good-condition bridges, achieving a recall of 88.07% and an F1 score of 0.8029. This indicates that most Good-condition observations were correctly identified.
+#v(0.5em)
 
-For Fair-condition bridges, the recall was 53.30% and the F1 score was 0.5783. This lower performance indicates that the model had difficulty distinguishing Fair observations from other condition categories, particularly Good.
-
-The most significant limitation was observed for Poor-condition bridges. Among 6,492 actual Poor observations, none were correctly classified as Poor. Consequently, both Poor-class recall and F1 were zero.
-
-The confusion matrix in @model-confusion-fig provides further information about the classification errors.
+The confusion matrix in @model-confusion-fig provides additional information about the classification errors. Among the 6,492 actual Poor observations, 1,388 were incorrectly predicted as Good, while 5,104 were predicted as Fair. None of the Poor observations were correctly identified. The model predicted only ten observations as Poor, but all ten predictions were incorrect. These results demonstrate that the classifier strongly favored Good and Fair predictions and was unable to identify the minority Poor category, despite achieving relatively high overall accuracy.
 
 #figure(
   image("model_results/confusion_matrix.png", width: 100%),
   caption: [Confusion matrix for the selected multinomial logistic regression model on the held-out test dataset. Rows represent actual conditions and columns represent predicted conditions.]
 ) <model-confusion-fig>
 
-Among the 6,492 actual Poor observations, 1,388 were incorrectly predicted as Good, while 5,104 were predicted as Fair. The model predicted only ten observations as Poor, but none of these predictions were correct.
+#v(0.5em)
 
-This result demonstrates that the classifier strongly favored Good and Fair predictions and failed to identify the minority Poor category.
-
-The differences in class-specific classification performance are further illustrated in @model-f1-fig.
+The differences in classification performance are further illustrated in @model-f1-fig, which compares the F1 scores for Good, Fair, and Poor conditions. Good achieved the highest F1 score of 0.8029, followed by Fair at 0.5783, while Poor had an F1 score of zero. These findings indicate that overall accuracy alone does not adequately describe the model's ability to identify different condition categories. In particular, the model was unable to identify any observations belonging to the most critical condition category, which substantially limits its usefulness for maintenance screening.
 
 #figure(
   image("model_results/per_class_f1.png", width: 100%),
   caption: [Comparison of class-specific F1 scores for Good, Fair, and Poor bridge conditions on the held-out test dataset.]
 ) <model-f1-fig>
-
-The F1 score was highest for Good (0.8029), followed by Fair (0.5783), while Poor had an F1 score of zero. These results explain why overall accuracy alone is insufficient for evaluating the practical effectiveness of the model.
-
-Despite achieving 70.53% accuracy, the model could not successfully identify the bridges belonging to the most critical condition category.
 
 == Discussion and Limitations
 
