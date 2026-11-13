@@ -312,3 +312,5 @@ The project work will be divided among team members while major decisions and fi
 All team members will contribute to interpreting the results, reviewing the analysis and code, preparing figures and tables, and writing and editing the final report. This approach will allow each team member to contribute to both the technical analysis and the final presentation of the project.
 
 Project work is organized around data preparation and validity checks, exploratory visualization, predictive modeling, and report integration. The team will jointly review the cross-year identifier mapping, preprocessing rules, split assignments, model results, and final interpretation. Each member will contribute analysis or report changes through the shared GitHub repository, with code and figures reviewed together before final submission.
+
+11/12
