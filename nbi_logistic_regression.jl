@@ -202,6 +202,7 @@ results = DataFrame(lambda=Float64[], accuracy=Float64[], macro_f1=Float64[],
 best_machine = nothing
 best_score = -Inf
 best_lambda = NaN
+
 for lambda in [0.01, 0.1, 1.0]
     println("Training multinomial logistic regression; lambda=$lambda ...")
     model = MultinomialClassifier(lambda=lambda, penalty=:l2)
@@ -212,10 +213,11 @@ for lambda in [0.01, 0.1, 1.0]
     push!(results, (lambda, score.accuracy, score.macro_f1,
                     score.balanced_accuracy, score.poor_recall))
     println("  validation macro-F1=$(round(score.macro_f1, digits=4)), poor recall=$(round(score.poor_recall, digits=4))")
+
     if score.macro_f1 > best_score
-        best_score = score.macro_f1
-        best_machine = mach
-        best_lambda = lambda
+        global best_score = score.macro_f1
+        global best_machine = mach
+        global best_lambda = lambda
     end
 end
 CSV.write(joinpath(OUT_DIR, "validation_comparison.csv"), results)
