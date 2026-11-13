@@ -280,26 +280,165 @@ Truck-share missingness averages 33.41% during 2002--2012 but only 0.05% during 
 The analysis is descriptive and observation-weighted: bridges recorded for more years contribute more rows. It is neither bridge-equal-weighted nor deck-area-weighted, and these percentages should not be presented as official statewide performance measures. Maintenance histories, environmental exposure, and component ratings are unavailable in this export. These limitations constrain causal interpretation, prediction of individual deterioration trajectories, and generalization beyond the selected Illinois cohort.
 
 = Predictive Modeling
+
+= Predictive Modeling
+
 == Task, Features, and Practical Use
-Deliverable 3 will compare models for the recorded Good/Fair/Poor class in the same reporting year. A successful model could support retrospective screening and identify inventory characteristics associated with condition, but it should supplement inspection information rather than determine maintenance decisions alone. No trained-model performance is claimed in this deliverable.Candidate inputs are age, ADT, truck share, owner agency, material, design, span count, structure length, maximum span, deck width, deck area, and reporting year. Historical and 2025 structure identifiers are excluded as predictors; the latter is retained only for grouping. Constant state fields are excluded.Year Built is omitted when age and reporting year are present because it is algebraically redundant with them. Target-derived component ratings will not be introduced as inputs.A model excluding reporting year will be compared to assess reliance on period-specific patterns.
 
+This study implemented multinomial logistic regression to classify bridge conditions into three categories: Good, Fair, and Poor, using Illinois National Bridge Inventory (NBI) records from 2002 to 2025. The objective was to evaluate whether bridge inventory characteristics could be used to predict recorded bridge conditions, with particular attention to identifying Poor-condition bridges.
 
+The predictive features included bridge age, average daily traffic, truck traffic percentage, owner agency, main span material, main span design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year. Bridge identification numbers were excluded from predictive inputs and used only for grouping observations. Year built was also excluded because it is mathematically redundant when bridge age and reporting year are included.
 
-== Preprocessing and Candidate Models
-After group assignment, all learned preprocessing will be fitted using training data only. Invalid span counts will become missing. Numeric missing values will receive training-set medians and explicit missing indicators; missing categorical values will form an Unknown category. Categories will be one-hot encoded with unseen categories handled safely. Zero-width coding will be retained as an indicator, with positive width represented separately and conditional on design; other nonpositive geometric measurements will be flagged and treated as unavailable where physically inappropriate. Traffic zeros will be retained with a separate indicator. Log1p transformations will be considered for ADT and positive size variables, with continuous inputs standardized for logistic regression. No information will be carried backward from later records to fill earlier missing measurements.
-#v(0.5em)
-The first comparator will predict the most frequent training class. A regularized multinomial logistic regression will provide a relatively transparent baseline. A random forest will then test whether nonlinear relationships and interactions improve classification. Class weighting will be considered for both models because Poor represents only 5.45% of the labeled sample. Regularization, tree depth, minimum leaf size, and weighting choices will be selected on the validation set. Model complexity will be limited to choices feasible for this tabular dataset.
+The model was designed for same-year bridge condition classification rather than forecasting future deterioration. Its potential application is to support preliminary maintenance screening and identify bridges that may require additional inspection. However, model predictions should not replace engineering inspections or directly determine maintenance priorities.
 
-== Grouped Validation and Evaluation
-The primary evaluation will hold out entire bridges to assess transfer to bridges unseen during training. A reproducible proposed split uses the 2025 structure identifier, seed 492, and approximate proportions of 60% training, 20% validation, and 20% test bridges. Bridge groups are stratified by their latest available nonmissing class, used only to balance group assignment. All annual records of a bridge remain in its assigned partition. The supplied manifest allocates 16,156 bridges and 348,774 labeled rows to training; 5,385 bridges and 116,575 rows to validation; and 5,386 bridges and 116,436 rows to testing. These are prepared partitions, not model results.
-#v(0.5em)
-The held-out test set will be used once after selecting the pipeline and model. Macro-F1 will be the primary comparison metric, accompanied by balanced accuracy, overall accuracy, precision/recall/F1 for each class, and a confusion matrix. Poor recall will quantify missed Poor observations, while Poor precision will characterize false alarms. If uncertainty intervals are reported, resampling will occur at the bridge-group level rather than independently across annual rows.
-#v(0.5em)
-This grouped evaluation does not test future-year forecasting, because records from overlapping reporting years are present across groups. As a separate robustness check, a chronological evaluation can train on 2002--2018, validate on 2019--2021, and test on 2022--2025. Allowing a bridge to recur in that chronological design addresses later-year classification for known bridges and must be reported as a different estimand. A future deterioration forecast would additionally require a defined horizon and correctly aligned future targets, which are outside the current classification plan.
+== Data Preprocessing and Model Development
 
+The initial dataset contained 582,165 bridge-year observations. After excluding 380 observations with missing condition labels, 581,785 labeled observations remained for supervised learning.
 
-== Interpretation and Sensitivity Analyses
-Planned comparisons will examine the effect of removing truck share, excluding reporting year, and restricting analysis to nonculvert structures. Per-class metrics will be checked across reporting periods and major material groups where sample sizes permit. Predictor importance will be assessed on validation data through permutation of original feature groups, so a categorical variable's encoded columns are assessed together. Age, reporting year, and dimensions may share predictive information; rankings will therefore be described as model-dependent associations rather than causal effects.
+Missing numerical values were replaced using medians calculated from the training dataset. Missing categorical values were assigned an Unknown category. Categorical predictors, including owner agency, main span material, and main span design, were converted into numerical features through one-hot encoding.
+
+Selected continuous variables, including average daily traffic, structure length, maximum span length, and deck area, were transformed using log(1+x). Numerical predictors were standardized using means and standard deviations calculated from the training data.
+
+Invalid span counts and nonpositive geometric measurements were treated as missing where physically inappropriate. Zero-width coding was retained through a separate indicator to account for culverts and other structures without conventional deck-width measurements. Additional indicators were included for missing numerical values and zero traffic observations.
+
+A multinomial logistic regression classifier with L2 regularization was implemented in Julia using MLJ and MLJLinearModels. Three regularization parameters (lambda = 0.01, 0.1, and 1.0) were evaluated to identify the best-performing model based on validation macro-F1.
+
+== Grouped Validation and Model Selection
+
+To prevent data leakage between training and testing, observations were divided at the bridge level rather than at the individual record level. The 2025 NBI structure identifier was used to group repeated observations of the same bridge.
+
+Bridge groups were stratified according to their latest available nonmissing condition category. A fixed random seed of 492 was used to obtain reproducible assignments, with approximately 60% of bridges allocated to training, 20% to validation, and 20% to testing.
+
+#figure(
+  table(
+    columns: (1.2fr, 0.9fr, 1.2fr, 0.9fr),
+    align: (left, right, right, right),
+    table.header(
+      [*Dataset*],
+      [*Bridges*],
+      [*Observations*],
+      [*Share*],
+    ),
+    [Training], [16,156], [348,406], [59.89%],
+    [Validation], [5,385], [116,534], [20.03%],
+    [Test], [5,386], [116,845], [20.08%],
+    [*Total*], [*26,927*], [*581,785*], [*100%*],
+  ),
+  caption: [Distribution of bridges and labeled bridge-year observations across training, validation, and test datasets.]
+) <model-split-table>
+
+As shown in @model-split-table, the training dataset contained 348,406 observations from 16,156 bridges. The validation and test datasets contained 116,534 and 116,845 observations, respectively. All records belonging to the same bridge were assigned to the same partition.
+
+The validation dataset was used to compare three regularization parameters. Macro-averaged F1 was selected as the primary model selection metric because the dataset exhibited substantial class imbalance. Poor-condition observations represented only 5.45% of the labeled dataset.
+
+#figure(
+  table(
+    columns: (0.7fr, 1fr, 1fr, 1.2fr, 0.9fr),
+    align: center,
+    table.header(
+      [*Lambda*],
+      [*Accuracy*],
+      [*Macro-F1*],
+      [*Balanced Accuracy*],
+      [*Poor Recall*],
+    ),
+    [0.01], [0.7062], [0.4599], [0.4699], [0.0000],
+    [0.1], [0.7036], [0.4576], [0.4674], [0.0000],
+    [1.0], [0.6713], [0.4316], [0.4414], [0.0000],
+  ),
+  caption: [Validation performance of multinomial logistic regression under different regularization parameters.]
+) <model-validation-table>
+
+The model with lambda = 0.01 achieved the highest validation macro-F1 score of 0.4599 and an accuracy of 70.62%. Therefore, lambda = 0.01 was selected for the final test evaluation.
+
+Increasing lambda from 0.01 to 1.0 reduced both accuracy and macro-F1 within the tested range. However, Poor-class recall remained zero for all parameter settings. This indicates that modifying the regularization strength alone did not resolve the model's difficulty in identifying Poor-condition bridges.
+
+== Model Performance and Evaluation
+
+The selected multinomial logistic regression model was evaluated on the held-out test dataset containing 116,845 bridge-year observations.
+
+The model achieved an overall accuracy of 70.53%, a macro-F1 score of 0.4604, and a balanced accuracy of 47.12%. A total of 82,406 observations were correctly classified.
+
+Although the overall accuracy exceeded 70%, the model showed substantial differences in predictive performance across the three condition categories.
+
+#figure(
+  table(
+    columns: (1fr, 1fr, 1fr, 0.9fr, 1fr),
+    align: (left, center, center, center, right),
+    table.header(
+      [*Condition*],
+      [*Precision*],
+      [*Recall*],
+      [*F1*],
+      [*Support*],
+    ),
+    [Good], [0.7377], [0.8807], [0.8029], [67,839],
+    [Fair], [0.6321], [0.5330], [0.5783], [42,514],
+    [Poor], [0.0000], [0.0000], [0.0000], [6,492],
+  ),
+  caption: [Class-specific classification performance of the selected multinomial logistic regression model on the held-out test dataset.]
+) <model-class-table>
+
+As shown in @model-class-table, the model performed best for Good-condition bridges, achieving a recall of 88.07% and an F1 score of 0.8029. This indicates that most Good-condition observations were correctly identified.
+
+For Fair-condition bridges, the recall was 53.30% and the F1 score was 0.5783. This lower performance indicates that the model had difficulty distinguishing Fair observations from other condition categories, particularly Good.
+
+The most significant limitation was observed for Poor-condition bridges. Among 6,492 actual Poor observations, none were correctly classified as Poor. Consequently, both Poor-class recall and F1 were zero.
+
+The confusion matrix in @model-confusion-fig provides further information about the classification errors.
+
+#figure(
+  image("model_results/confusion_matrix.png", width: 100%),
+  caption: [Confusion matrix for the selected multinomial logistic regression model on the held-out test dataset. Rows represent actual conditions and columns represent predicted conditions.]
+) <model-confusion-fig>
+
+Among the 6,492 actual Poor observations, 1,388 were incorrectly predicted as Good, while 5,104 were predicted as Fair. The model predicted only ten observations as Poor, but none of these predictions were correct.
+
+This result demonstrates that the classifier strongly favored Good and Fair predictions and failed to identify the minority Poor category.
+
+The differences in class-specific classification performance are further illustrated in @model-f1-fig.
+
+#figure(
+  image("model_results/per_class_f1.png", width: 100%),
+  caption: [Comparison of class-specific F1 scores for Good, Fair, and Poor bridge conditions on the held-out test dataset.]
+) <model-f1-fig>
+
+The F1 score was highest for Good (0.8029), followed by Fair (0.5783), while Poor had an F1 score of zero. These results explain why overall accuracy alone is insufficient for evaluating the practical effectiveness of the model.
+
+Despite achieving 70.53% accuracy, the model could not successfully identify the bridges belonging to the most critical condition category.
+
+== Discussion and Limitations
+
+The results indicate that multinomial logistic regression can classify Good-condition bridges with relatively high effectiveness and Fair-condition bridges with moderate effectiveness. However, the model was unable to correctly identify any Poor-condition observations.
+
+One possible explanation is the substantial class imbalance in the dataset. Good observations represented 58.20% of the labeled records, while Fair and Poor represented 36.35% and 5.45%, respectively.
+
+Because the current model did not incorporate class-specific weighting, it may have favored the more frequent Good and Fair categories when minimizing the overall training loss.
+
+Another possible explanation is the limited ability of the current logistic regression specification to represent nonlinear relationships and interactions between bridge characteristics.
+
+For example, the relationship between bridge age and condition may vary depending on structural material, bridge design, and traffic demand. Such interactions were not explicitly incorporated into the current model.
+
+Furthermore, the available NBI dataset did not include detailed maintenance histories, environmental exposure measurements, or component-level condition ratings. These omitted factors may provide additional information relevant to bridge deterioration and condition classification.
+
+The findings emphasize the importance of evaluating classification models using multiple performance metrics. Although the model achieved an overall accuracy of 70.53%, its balanced accuracy of 47.12% and Poor recall of zero indicate substantial limitations.
+
+For infrastructure maintenance applications, incorrectly classifying Poor-condition bridges as Good or Fair is particularly concerning because these bridges may require additional inspection or maintenance attention.
+
+Future improvements should therefore focus on addressing class imbalance and enhancing model flexibility. Class-weighted multinomial logistic regression may improve the identification of Poor observations by assigning greater importance to minority-class errors during training.
+
+Additional feature engineering, including interaction terms between bridge age, structural material, and geometric characteristics, may also improve model performance.
+
+Nonlinear classifiers such as random forests could be investigated to assess whether more complex relationships improve classification performance.
+
+Sensitivity analyses excluding truck traffic percentage, reporting year, or culvert structures would also help evaluate the influence of data characteristics on model predictions.
+
+These additional analyses have not yet been implemented. Therefore, their potential improvements remain to be tested.
+
+Overall, the current multinomial logistic regression model provides an initial benchmark for bridge condition classification. However, its inability to identify Poor-condition bridges limits its practical application to maintenance prioritization.
+
+Further model development and validation are necessary before the predictions can be considered reliable for infrastructure management decisions.
+
 
 = Team Plan
 
