@@ -296,11 +296,19 @@ Our models were used to predict bridge conditions in the same reporting year. Th
 
 == Data Preprocessing and Validation Strategy
 
-The initial dataset contained 582,165 bridge-year observations. After excluding 380 records without condition labels, 581,785 observations from 26,927 unique bridges remained. Predictors considered for supervised classification included bridge age, average daily traffic, truck traffic percentage, owner agency, main span material and design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year. Bridge identifiers were not predictive inputs. For logistic regression, missing numerical values were filled using training-set medians, missing categorical entries were coded as Unknown, and categorical predictors were one-hot encoded. Selected nonnegative variables were transformed using log(1+x), with continuous predictors standardized using training-set statistics. Indicators were used for selected missing and zero-valued measurements.
+The original dataset had 582,165 bridge-year records. We removed 380 records because they did not have bridge condition labels. After that, we had 581,785 records from 26,927 different bridges.
+
+For the supervised models, we used several features, including bridge age, daily traffic, truck traffic percentage, owner agency, main span material and design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year. We did not use bridge ID numbers to predict bridge conditions.
+
+For logistic regression, we filled missing numerical values using the median values from the training data. Missing categorical values were put into a group called Unknown. We also used one-hot encoding to change categorical features into numbers. Some numerical features with nonnegative values were changed using log(1+x). We then standardized the continuous features using the mean and standard deviation from the training data. We also added indicators for some missing values and zero measurements.
 
 #v(0.5em)
 
-To reduce leakage from repeated annual observations, the supervised analyses used bridge-level partitions: all records belonging to the same bridge were assigned to a single partition. Approximately 60% of bridges were used for training, 20% for validation, and 20% for testing, with a fixed random seed of 492. The resulting allocation is shown in @ch4-data-table. Random forest used the same bridge partitions and condition labels as logistic regression, allowing a direct comparison on the same 116,845 test observations. Model selection was based on validation performance; the held-out test set was used for final evaluation. K-means cluster summaries were also reported by partition, but its clusters were evaluated descriptively rather than as supervised predictions.
+To avoid data leakage, we split the data by bridge instead of by individual records. This means all records from the same bridge were kept in one dataset. We used about 60% of the bridges for training, 20% for validation, and 20% for testing. We also used a fixed random seed of 492. The data split is shown in @ch4-data-table.
+
+We used the same bridge groups and condition labels for both random forest and logistic regression. This allowed us to compare the two models using the same 116,845 test records. We used the validation results to choose the best model settings and used the test data only for the final evaluation.
+
+We also reported K-means clustering results for each dataset. Since K-means does not directly predict bridge conditions, we used its results to study patterns in the data instead of measuring classification accuracy.
 
 #figure(
   table(
