@@ -283,12 +283,11 @@ The analysis is descriptive and observation-weighted: bridges recorded for more 
 
 == Task, Features, and Practical Use
 
-This study implemented multinomial logistic regression to classify bridge conditions into three categories: Good, Fair, and Poor, using Illinois National Bridge Inventory (NBI) records from 2002 to 2025. The objective was to evaluate whether bridge inventory characteristics could be used to predict recorded bridge conditions, with particular attention to identifying Poor-condition bridges.
+In this study, we used multinomial logistic regression to classify bridge conditions into three groups: Good, Fair, and Poor. We used Illinois National Bridge Inventory (NBI) data from 2002 to 2025. Our goal was to see if bridge information could help predict bridge conditions. We were especially interested in finding bridges in Poor condition.
 
-The predictive features included bridge age, average daily traffic, truck traffic percentage, owner agency, main span material, main span design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year. Bridge identification numbers were excluded from predictive inputs and used only for grouping observations. Year built was also excluded because it is mathematically redundant when bridge age and reporting year are included.
+The model used several features, including bridge age, daily traffic, truck traffic percentage, owner agency, main span material and design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year. We did not use bridge ID numbers to predict conditions. We only used them to group records from the same bridge. We also removed year built because it can be calculated using bridge age and reporting year.
 
-The model was designed for same-year bridge condition classification rather than forecasting future deterioration. Its potential application is to support preliminary maintenance screening and identify bridges that may require additional inspection. However, model predictions should not replace engineering inspections or directly determine maintenance priorities.
-
+The model was used to predict the bridge condition recorded in the same year. It was not designed to predict how bridge conditions will change in the future. The results may help identify bridges that need further inspection. However, engineers still need to inspect these bridges, and the model should not be used alone to make maintenance decisions.
 == Data Preprocessing and Model Development
 
 The initial dataset contained 582,165 bridge-year observations. After excluding 380 observations with missing condition labels, 581,785 labeled observations remained for supervised learning.
