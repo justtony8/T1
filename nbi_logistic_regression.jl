@@ -204,6 +204,7 @@ best_score = -Inf
 best_lambda = NaN
 
 for lambda in [0.01, 0.1, 1.0]
+    global best_score, best_machine, best_lambda
     println("Training multinomial logistic regression; lambda=$lambda ...")
     model = MultinomialClassifier(lambda=lambda, penalty=:l2)
     mach = machine(model, Xtrain, ytrain)
