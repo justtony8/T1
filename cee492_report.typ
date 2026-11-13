@@ -284,11 +284,15 @@ The analysis is descriptive and observation-weighted: bridges recorded for more 
 
 == Research Objective and Modeling Approaches
 
-This study examined whether bridge inventory characteristics could support the classification and characterization of bridge condition using Illinois National Bridge Inventory (NBI) records from 2002 to 2025. The supervised classification task was to distinguish Good, Fair, and Poor conditions using bridge characteristics such as age, traffic, structural type, and dimensions. Three complementary analytical approaches were considered: multinomial logistic regression as an interpretable linear baseline, random forest as a nonlinear classifier, and K-means as an unsupervised method for identifying groups of similar bridge observations.
+In this study, we used Illinois National Bridge Inventory (NBI) data from 2002 to 2025 to study bridge conditions. Our goal was to see if bridge information could help us classify bridges into three groups: Good, Fair, and Poor. We used features such as bridge age, traffic, structure type, and bridge size.
+
+We tested three methods in this project. First, we used multinomial logistic regression as a simple linear model for comparison. We also used random forest to find more complex patterns in the data and predict bridge conditions. Finally, we used K-means clustering to group bridge records with similar features without using their condition labels.
 
 #v(0.5em)
 
-The supervised models were evaluated on their ability to identify condition categories for held-out bridge records, with particular attention to the minority Poor class. K-means addressed a different question: whether bridge observations form groups with distinct condition compositions, without using condition labels to define the groups. Because clustering and classification have different objectives, their scores are not directly comparable. The analysis concerns classification of recorded condition in the same reporting year, not forecasting future deterioration or replacing formal bridge inspections.
+We tested the supervised models to see how well they could predict bridge conditions for bridges that were not used in training. We paid more attention to the Poor category because it had fewer records. K-means was used for a different purpose. We wanted to see if bridges with similar features would have different percentages of Good, Fair, and Poor conditions. K-means did not use condition labels when creating these groups, so we cannot directly compare its results with the classification models.
+
+Our models were used to predict bridge conditions in the same reporting year. They were not designed to predict future changes in bridge conditions or replace regular bridge inspections.
 
 == Data Preprocessing and Validation Strategy
 
