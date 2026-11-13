@@ -1,0 +1,4 @@
+actual,predicted_Good,predicted_Fair,predicted_Poor
+Good,56955,10856,28
+Fair,13928,28207,379
+Poor,655,5362,475

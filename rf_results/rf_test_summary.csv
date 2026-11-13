@@ -1,0 +1,2 @@
+n_trees,max_depth,min_samples_leaf,accuracy,macro_f1,balanced_accuracy,poor_recall,poor_precision
+100,20,5,0.7329111215713124,0.5316675105544632,0.5254012833393512,0.07316697473813925,0.5385487528344671
