@@ -279,53 +279,31 @@ Truck-share missingness averages 33.41% during 2002--2012 but only 0.05% during 
 
 The analysis is descriptive and observation-weighted: bridges recorded for more years contribute more rows. It is neither bridge-equal-weighted nor deck-area-weighted, and these percentages should not be presented as official statewide performance measures. Maintenance histories, environmental exposure, and component ratings are unavailable in this export. These limitations constrain causal interpretation, prediction of individual deterioration trajectories, and generalization beyond the selected Illinois cohort.
 
+
 = Predictive Modeling
 
+== Research Objective and Modeling Approaches
 
-== Task, Features, and Practical Use
-
-In this study, we used multinomial logistic regression to classify bridge conditions as Good, Fair, or Poor using Illinois National Bridge Inventory (NBI) data from 2002 to 2025. We also specified a complementary K-means clustering analysis to identify groups of bridges with similar numerical characteristics without using condition labels. The supervised analysis examines whether bridge information can predict recorded condition, with particular attention to Poor-condition bridges. The clustering analysis instead examines whether distinct bridge profiles are present and whether their condition distributions differ.
-
-The analyses use bridge age, daily traffic, truck traffic percentage, owner agency, main span material and design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year where appropriate. Bridge identifiers are excluded as predictive or clustering features because they do not represent physical characteristics. They are used only to group records belonging to the same bridge. Year built is also excluded because it can be calculated from bridge age and reporting year.
+This study examined whether bridge inventory characteristics could support the classification and characterization of bridge condition using Illinois National Bridge Inventory (NBI) records from 2002 to 2025. The supervised classification task was to distinguish Good, Fair, and Poor conditions using bridge characteristics such as age, traffic, structural type, and dimensions. Three complementary analytical approaches were considered: multinomial logistic regression as an interpretable linear baseline, random forest as a nonlinear classifier, and K-means as an unsupervised method for identifying groups of similar bridge observations.
 
 #v(0.5em)
 
-The model was developed to predict the bridge condition recorded in the same reporting year, rather than forecasting how bridge conditions may change in the future. The predicted condition categories could potentially support preliminary maintenance screening and help transportation agencies identify bridges that may require additional inspections. However, the predictions should be used as supplementary information rather than replacing engineering inspections or directly determining maintenance priorities.
+The supervised models were evaluated on their ability to identify condition categories for held-out bridge records, with particular attention to the minority Poor class. K-means addressed a different question: whether bridge observations form groups with distinct condition compositions, without using condition labels to define the groups. Because clustering and classification have different objectives, their scores are not directly comparable. The analysis concerns classification of recorded condition in the same reporting year, not forecasting future deterioration or replacing formal bridge inspections.
 
-== Data Preprocessing and Model Development
+== Data Preprocessing and Validation Strategy
 
-The initial dataset contained 582,165 bridge-year observations from 2002 to 2025. After excluding 380 observations with missing bridge condition labels, 581,785 labeled observations remained for supervised learning. Before model training, missing numerical values were replaced using medians calculated from the training dataset, while missing categorical values were assigned an Unknown category. Categorical predictors, including owner agency, main span material, and main span design, were converted into numerical features through one-hot encoding. Selected continuous variables, including average daily traffic, structure length, maximum span length, and deck area, were transformed using log(1+x). Numerical predictors were then standardized using means and standard deviations calculated from the training data.
-
-#v(0.5em)
-
-Invalid span counts and nonpositive geometric measurements were treated as missing where physically inappropriate. Zero-width coding was retained through a separate indicator to account for culverts and other structures without conventional deck-width measurements. Additional indicators were included for missing numerical values and zero traffic observations. These preprocessing procedures were applied consistently to the training, validation, and test datasets, while all learned preprocessing parameters were determined using training data only.
+The initial dataset contained 582,165 bridge-year observations. After excluding 380 records without condition labels, 581,785 observations from 26,927 unique bridges remained. Predictors considered for supervised classification included bridge age, average daily traffic, truck traffic percentage, owner agency, main span material and design, number of spans, structure length, maximum span length, deck width, deck area, and reporting year. Bridge identifiers were not predictive inputs. For logistic regression, missing numerical values were filled using training-set medians, missing categorical entries were coded as Unknown, and categorical predictors were one-hot encoded. Selected nonnegative variables were transformed using log(1+x), with continuous predictors standardized using training-set statistics. Indicators were used for selected missing and zero-valued measurements.
 
 #v(0.5em)
 
-A multinomial logistic regression classifier with L2 regularization was implemented in Julia using MLJ and MLJLinearModels. Multinomial logistic regression was selected because the prediction target consists of three categories, Good, Fair, and Poor, and the method provides a relatively simple and interpretable classification framework. Three regularization parameters (lambda = 0.01, 0.1, and 1.0) were evaluated to identify the best-performing model based on validation macro-F1.
-
-== Complementary K-means Clustering
-
-K-means clustering provided an unsupervised view of the bridge inventory rather than a second condition classifier. The clustering inputs were the imputed and standardized numerical variables: bridge age, log-transformed average daily traffic, truck traffic percentage, number of spans, log-transformed structure length, maximum span length, deck width, deck area, and reporting year. Condition labels, identifiers, and one-hot-encoded categorical variables were not used to form the clusters. Excluding the condition label allowed the analysis to test whether bridge profiles emerged independently of the recorded outcome.
-
-#v(0.5em)
-
-The clustering model was fitted using training data only. Candidate cluster counts from $k = 2$ through $k = 8$ were compared using within-cluster sum of squares and the average silhouette score calculated on a reproducible sample of 2,000 training observations. For each value of $k$, 20 initial centroid sets and random seed 492 were used to reduce sensitivity to initialization. The selected model assigned validation and test observations to their nearest training-derived centroids without refitting the centroids.
-
-#v(0.5em)
-
-Cluster interpretation used centroid profiles, cluster sizes, and the proportions of Good, Fair, and Poor observations assigned to each cluster. These condition proportions describe associations between bridge profiles and recorded condition; they are not treated as classification accuracy or evidence of causal deterioration. K-means assumes roughly compact clusters under Euclidean distance, so strongly overlapping or irregular bridge groups may limit its usefulness.
-
-== Grouped Validation and Model Selection
-
-To prevent data leakage between training and testing, observations were divided at the bridge level rather than at the individual record level. The 2025 NBI structure identifier was used to group repeated observations of the same bridge. Bridge groups were stratified according to their latest available nonmissing condition category. A fixed random seed of 492 was used to obtain reproducible assignments, with approximately 60% of bridges allocated to training, 20% to validation, and 20% to testing. As shown in @model-split-table, the training dataset contained 348,406 observations from 16,156 bridges, while the validation and test datasets contained 116,534 and 116,845 observations, respectively. All records belonging to the same bridge were assigned to the same partition.
+To reduce leakage from repeated annual observations, the supervised analyses used bridge-level partitions: all records belonging to the same bridge were assigned to a single partition. Approximately 60% of bridges were used for training, 20% for validation, and 20% for testing, with a fixed random seed of 492. The resulting allocation is shown in @ch4-data-table. Random forest used the same bridge partitions and condition labels as logistic regression, allowing a direct comparison on the same 116,845 test observations. Model selection was based on validation performance; the held-out test set was used for final evaluation. K-means cluster summaries were also reported by partition, but its clusters were evaluated descriptively rather than as supervised predictions.
 
 #figure(
   table(
-    columns: (1.2fr, 0.9fr, 1.2fr, 0.9fr),
+    columns: (1.1fr, 0.8fr, 1.1fr, 0.8fr),
     align: (left, right, right, right),
     table.header(
-      [*Dataset*],
+      [*Partition*],
       [*Bridges*],
       [*Observations*],
       [*Share*],
@@ -335,102 +313,140 @@ To prevent data leakage between training and testing, observations were divided 
     [Test], [5,386], [116,845], [20.08%],
     [*Total*], [*26,927*], [*581,785*], [*100%*],
   ),
-  caption: [Distribution of bridges and labeled bridge-year observations across training, validation, and test datasets.]
-) <model-split-table>
+  caption: [Bridge-level dataset partitions and bridge-year observations.]
+) <ch4-data-table>
 
-#v(0.5em)
+== Multinomial Logistic Regression
 
-The validation dataset was used to compare three regularization parameters. Macro-averaged F1 was selected as the primary model selection metric because the dataset exhibited substantial class imbalance, with Poor-condition observations representing only 5.45% of the labeled dataset. Unlike overall accuracy, macro-F1 gives equal importance to each condition category, making it more appropriate for evaluating classification performance when one category is much less frequent than the others. The validation results for the three regularization parameters are presented in @model-validation-table.
+A multinomial logistic regression model with L2 regularization was implemented in Julia using MLJ and MLJLinearModels. It was selected as a baseline because it provides a relatively simple approach to three-class classification. The regularization parameter lambda was varied across 0.01, 0.1, and 1.0, and validation macro-F1 was used to select the final setting. Macro-F1 assigns equal importance to Good, Fair, and Poor, which is important because Poor observations account for only about 5.45% of the labeled data. As shown in @ch4-lr-val-table, lambda = 0.01 gave the highest validation macro-F1 (0.4599); all three tested settings had zero Poor recall.
 
 #figure(
   table(
-    columns: (0.7fr, 1fr, 1fr, 1.2fr, 0.9fr),
+    columns: (0.75fr, 0.95fr, 0.95fr, 1.2fr, 0.95fr),
     align: center,
     table.header(
       [*Lambda*],
       [*Accuracy*],
       [*Macro-F1*],
-      [*Balanced Accuracy*],
-      [*Poor Recall*],
+      [*Balanced accuracy*],
+      [*Poor recall*],
     ),
     [0.01], [0.7062], [0.4599], [0.4699], [0.0000],
     [0.1], [0.7036], [0.4576], [0.4674], [0.0000],
     [1.0], [0.6713], [0.4316], [0.4414], [0.0000],
   ),
-  caption: [Validation performance of multinomial logistic regression under different regularization parameters.]
-) <model-validation-table>
+  caption: [Logistic regression validation scores across L2 regularization settings.]
+) <ch4-lr-val-table>
 
 #v(0.5em)
 
-The model with lambda = 0.01 achieved the highest validation macro-F1 score of 0.4599 and an accuracy of 70.62%. Therefore, lambda = 0.01 was selected for the final test evaluation. Increasing lambda from 0.01 to 1.0 reduced both accuracy and macro-F1 within the tested range. However, Poor-class recall remained zero for all three parameter settings, indicating that modifying the regularization strength alone did not resolve the model's difficulty in identifying Poor-condition bridges.
+On the held-out test set, the selected logistic regression model achieved 70.53% accuracy, a macro-F1 of 0.4604, and 47.12% balanced accuracy. Good and Fair achieved F1 scores of 0.8029 and 0.5783, respectively, but Poor achieved an F1 score and recall of zero. None of the 6,492 actual Poor observations was correctly predicted: 1,388 were classified as Good and 5,104 as Fair. These findings indicate that acceptable overall accuracy can conceal a complete failure to identify a relatively rare but practically important condition category.
 
-== Model Performance and Evaluation
+== Random Forest Classification
 
-The selected multinomial logistic regression model was evaluated on the held-out test dataset containing 116,845 bridge-year observations. The model achieved an overall accuracy of 70.53%, a macro-F1 score of 0.4604, and a balanced accuracy of 47.12%, correctly classifying a total of 82,406 observations. Although the overall accuracy exceeded 70%, the model showed substantial differences in predictive performance across the three condition categories. As summarized in @model-class-table, Good-condition bridges achieved the highest recall of 88.07% and an F1 score of 0.8029, indicating that most Good observations were correctly identified. Fair-condition bridges achieved a recall of 53.30% and an F1 score of 0.5783, suggesting that the model had greater difficulty distinguishing Fair observations from other categories. The most significant limitation was observed for Poor-condition bridges, for which both recall and F1 were zero.
+A random forest classifier was evaluated to test whether a tree-based model could better represent nonlinear patterns and interactions in the bridge characteristics. Three model configurations were compared by changing the number of trees, maximum depth, and minimum leaf size together. As shown in @ch4-rf-val-table, validation macro-F1 improved from 0.4951 to 0.5234 across the tested configurations. The configuration with 100 trees, maximum depth 20, and minimum leaf size 5 achieved the highest validation macro-F1 (0.5234) and was selected for final testing. Because all three parameters changed together, the improvement cannot be attributed to any single parameter. The validation results are further illustrated in @ch4-rf-val-fig.
 
 #figure(
   table(
-    columns: (1fr, 1fr, 1fr, 0.9fr, 1fr),
-    align: (left, center, center, center, right),
+    columns: (0.8fr, 0.9fr, 0.8fr, 0.9fr, 0.9fr),
+    align: center,
     table.header(
-      [*Condition*],
-      [*Precision*],
-      [*Recall*],
-      [*F1*],
-      [*Support*],
+      [*Trees*],
+      [*Max depth*],
+      [*Min leaf*],
+      [*Macro-F1*],
+      [*Poor recall*],
     ),
-    [Good], [0.7377], [0.8807], [0.8029], [67,839],
-    [Fair], [0.6321], [0.5330], [0.5783], [42,514],
-    [Poor], [0.0000], [0.0000], [0.0000], [6,492],
+    [30], [12], [20], [0.4951], [0.0205],
+    [60], [16], [10], [0.5111], [0.0390],
+    [100], [20], [5], [0.5234], [0.0590],
   ),
-  caption: [Class-specific classification performance of the selected multinomial logistic regression model on the held-out test dataset.]
-) <model-class-table>
-
-#v(0.5em)
-
-The confusion matrix in @model-confusion-fig provides additional information about the classification errors. Among the 6,492 actual Poor observations, 1,388 were incorrectly predicted as Good, while 5,104 were predicted as Fair. None of the Poor observations were correctly identified. The model predicted only ten observations as Poor, but all ten predictions were incorrect. These results demonstrate that the classifier strongly favored Good and Fair predictions and was unable to identify the minority Poor category, despite achieving relatively high overall accuracy.
+  caption: [Random forest configurations and their validation performance.]
+) <ch4-rf-val-table>
 
 #figure(
-  image("model_results/confusion_matrix.png", width: 90%),
-  caption: [Confusion matrix for the selected multinomial logistic regression model on the held-out test dataset. Rows represent actual conditions and columns represent predicted conditions.]
-) <model-confusion-fig>
+  image("ch4_figures/rf_validation_comparison.png", width: 100%),
+  caption: [Validation macro-F1 for the three random forest configurations. Tree count, depth, and leaf size were varied together.]
+) <ch4-rf-val-fig>
 
 #v(0.5em)
 
-The differences in classification performance are further illustrated in @model-f1-fig, which compares the F1 scores for Good, Fair, and Poor conditions. Good achieved the highest F1 score of 0.8029, followed by Fair at 0.5783, while Poor had an F1 score of zero. These findings indicate that overall accuracy alone does not adequately describe the model's ability to identify different condition categories. In particular, the model was unable to identify any observations belonging to the most critical condition category, which substantially limits its usefulness for maintenance screening.
+The selected random forest achieved 73.29% test accuracy, a macro-F1 of 0.5317, and 52.54% balanced accuracy. Good, Fair, and Poor F1 scores were 0.8173, 0.6489, and 0.1288, respectively. Unlike logistic regression, random forest correctly identified 475 of the 6,492 Poor observations, resulting in 7.32% Poor recall and 53.85% Poor precision. Nevertheless, it still missed 6,017 Poor observations: 655 were classified as Good and 5,362 as Fair. The confusion matrix in @ch4-rf-cm-fig illustrates this imbalance. Therefore, the model improved minority-class detection but remained inadequate as a stand-alone screening tool for identifying Poor bridges.
 
 #figure(
-  image("model_results/per_class_f1.png", width: 100%),
-  caption: [Comparison of class-specific F1 scores for Good, Fair, and Poor bridge conditions on the held-out test dataset.]
-) <model-f1-fig>
+  image("ch4_figures/rf_confusion_matrix.png", width: 92%),
+  caption: [Random forest confusion matrix for the held-out test dataset. Rows are actual classes and columns are predicted classes.]
+) <ch4-rf-cm-fig>
 
-== K-means Clustering Results
+== K-means Clustering Analysis
 
-Among the candidate values, $k = 2$ produced the highest sampled average silhouette score of 0.3103. The score decreased to 0.1978 for $k = 3$ and remained between 0.1838 and 0.2085 for $k = 4$ through $k = 8$. Within-cluster sum of squares decreased as the number of clusters increased, as expected, but the silhouette comparison supported the more parsimonious two-cluster solution (@kmeans-selection-fig).
-
-#figure(
-  image("kmeans_results/k_selection.png", width: 100%),
-  caption: [K-means model selection using a reproducible sample of 2,000 training observations. The two-cluster solution had the highest average silhouette score, while within-cluster sum of squares decreased as the number of clusters increased.]
-) <kmeans-selection-fig>
-
-#v(0.5em)
-
-The two clusters also differed in held-out condition composition (@kmeans-composition-fig). Cluster 1 contained 83,530 test observations, of which 63.01% were Good, 31.92% were Fair, and 5.07% were Poor. Cluster 2 contained 33,315 observations, with 45.65% Good, 47.59% Fair, and 6.77% Poor. Cluster 2 therefore contained a larger share of Fair and Poor observations, but Poor observations remained uncommon in both groups. The clusters describe broad bridge profiles rather than a separation of the three condition classes.
+K-means clustering was used as a complementary unsupervised analysis of the bridge records. Unlike the supervised classifiers, K-means creates clusters based on similarity in the input feature space, rather than directly predicting Good, Fair, or Poor. Candidate cluster counts from K = 2 through K = 8 were compared using average silhouette score and within-cluster sum of squares (WCSS). As shown in @ch4-k-sil-fig, K = 2 had the highest silhouette score (0.3103), compared with approximately 0.18 to 0.21 for the larger candidate values. WCSS decreased steadily as K increased, but @ch4-k-elbow-fig did not show a clear elbow. Accordingly, K = 2 was selected primarily on the silhouette criterion. Its score indicates some cluster structure, but not a strong separation.
 
 #figure(
-  image("kmeans_results/test_cluster_condition_composition.png", width: 85%),
-  caption: [Condition composition of held-out test observations assigned to the two training-derived K-means clusters. Condition labels were not used to fit the clusters.]
-) <kmeans-composition-fig>
+  image("ch4_figures/kmeans_silhouette.png", width: 100%),
+  caption: [Average silhouette score for K-means models with two to eight clusters.]
+) <ch4-k-sil-fig>
 
-== Discussion and Limitations
+#figure(
+  image("ch4_figures/kmeans_elbow.png", width: 100%),
+  caption: [K-means within-cluster sum of squares for two to eight clusters.]
+) <ch4-k-elbow-fig>
 
-The multinomial logistic regression model identified Good-condition bridges more reliably than Fair-condition bridges and missed every Poor-condition bridge in the evaluation (0% recall). Overall accuracy was 70.53%. Averaging recall across the three classes gave a balanced accuracy of 47.12%. For maintenance planning, a Poor-condition bridge classified as Good or Fair could be overlooked when agencies prioritize inspections or repairs.Class imbalance may partly explain why the model missed the Poor bridges. They accounted for just 5.45% of the labeled records, compared with 36.35% for Fair and 58.20% for Good. The model gave each observation equal weight during training, so the small number of Poor observations may have had limited influence on the fit.
 #v(0.5em)
-The model may also have missed nonlinear relationships and interactions among bridge characteristics. For example, the relationship between age and condition may vary with structural material, bridge design, or traffic demand. The model did not include terms for those interactions. The NBI data used in this analysis also lacked detailed maintenance histories, environmental exposure measurements, and component-level condition ratings that could help explain differences in deterioration.
+
+The condition distributions differed between the two clusters, as summarized for the held-out test partition in @ch4-cluster-fig. Cluster 1 contained 83,530 observations and had 63.01% Good, 31.92% Fair, and 5.07% Poor. Cluster 2 contained 33,315 observations and had 45.65% Good, 47.59% Fair, and 6.77% Poor. Cluster 2 therefore contained a larger share of Fair and Poor observations, although it still included many Good observations. Similar broad differences were present in the reported training and validation cluster summaries. These findings suggest an association between the clustering features and condition composition, but the clusters do not constitute reliable Good/Fair/Poor predictions. The feature-specific interpretation of each cluster requires inspection of the original-scale centroids and the exact clustering input variables.
+
+#figure(
+  image("ch4_figures/kmeans_test_condition_composition.png", width: 100%),
+  caption: [Condition composition of the two K-means clusters in the held-out test partition.]
+) <ch4-cluster-fig>
+
+== Comparison of Modeling Results
+
+Since logistic regression and random forest were evaluated on the same bridge-level test partition, their classification metrics can be compared directly. @ch4-model-compare-table and @ch4-model-compare-fig show that random forest outperformed logistic regression on accuracy (73.29% versus 70.53%), macro-F1 (0.5317 versus 0.4604), and balanced accuracy (52.54% versus 47.12%). Class-specific F1 also increased for Good and Fair, and Poor F1 improved from zero to 0.1288, as shown in @ch4-f1-fig. The findings are consistent with a benefit from using a more flexible model, although other differences in model specification could also contribute to the improvement.
+
+#figure(
+  table(
+    columns: (1.45fr, 1fr, 1fr),
+    align: (left, center, center),
+    table.header(
+      [*Test metric*],
+      [*Logistic regression*],
+      [*Random forest*],
+    ),
+    [Accuracy], [0.7053], [0.7329],
+    [Macro-F1], [0.4604], [0.5317],
+    [Balanced accuracy], [0.4712], [0.5254],
+    [Good F1], [0.8029], [0.8173],
+    [Fair F1], [0.5783], [0.6489],
+    [Poor F1], [0.0000], [0.1288],
+    [Poor recall], [0.0000], [0.0732],
+  ),
+  caption: [Held-out test performance of the supervised classification models.]
+) <ch4-model-compare-table>
+
+#figure(
+  image("ch4_figures/model_performance_comparison.png", width: 100%),
+  caption: [Comparison of overall test metrics and Poor recall for logistic regression and random forest.]
+) <ch4-model-compare-fig>
+
+#figure(
+  image("ch4_figures/class_f1_comparison.png", width: 100%),
+  caption: [Class-specific test F1 scores of logistic regression and random forest.]
+) <ch4-f1-fig>
+
 #v(0.5em)
-K-means clustering identified two broad groups with different condition compositions, but it did not isolate Poor-condition bridges. The Poor share was 5.07% in Cluster 1 and 6.77% in Cluster 2, showing substantial overlap between the clusters. The clustering therefore complements the supervised model by describing inventory structure, but it does not directly address the classifier's zero recall for Poor-condition bridges. No predictive-performance claim can be made from these clusters without a separate, prespecified mapping from clusters to condition labels evaluated on held-out data.
+
+The K-means results add a different perspective by showing that groups formed without condition labels have different proportions of Good, Fair, and Poor observations. However, a silhouette score measures cluster cohesion and separation, not predictive classification accuracy. It would therefore be inappropriate to rank K-means alongside logistic regression and random forest using the same performance metrics. Taken together, the analyses suggest that nonlinear supervised classification improves test performance and that unsupervised group structure is associated with, but does not uniquely determine, observed bridge condition.
+
+== Discussion, Limitations, and Future Work
+
+The primary limitation of both supervised models was weak identification of the Poor category. Poor accounted for only about 5.45% of the labeled records. Logistic regression detected none of the Poor observations, while random forest detected only 7.32%. This class imbalance may contribute to the tendency to predict the more common Good and Fair conditions. Furthermore, bridge age, traffic, material, design, and dimensions may interact in nonlinear ways that are not fully captured by a simple linear specification. The improvements with random forest are consistent with this possibility but do not establish it as a causal explanation. The clustering results likewise show differences in condition composition, but the relatively modest silhouette score and overlap across clusters limit their interpretation.
+
 #v(0.5em)
-A next step would be to test whether class weighting improves recall for Poor-condition bridges. Adding interactions among age, structural material, and bridge geometry could help capture some of the relationships the current model misses. A comparison with a random forest could also show whether a more flexible classifier performs better. Sensitivity analyses could assess how the results change when truck traffic percentage, reporting year, or culvert structures are excluded. The current logistic regression model provides a baseline for these comparisons. Before its predictions can inform maintenance priorities, further validation would need to show that Poor-condition bridges can be identified reliably.
+
+A further limitation is that this analysis classifies recorded condition in the same year rather than predicting future structural deterioration. Detailed maintenance history, local environmental exposure, and component-level information were not included in the reported predictor set. Future work should evaluate class-weighted classifiers, alternative probability thresholds, targeted feature interactions, and additional nonlinear models to improve Poor recall while monitoring false alarms. Sensitivity analyses and inspection of K-means centroids in original measurement units would help explain which variables drive the reported results. These improvements have not yet been tested in the present results and should not be presented as demonstrated gains. Overall, random forest provided the strongest supervised performance of the models evaluated, but neither supervised model is currently sufficiently reliable for independent bridge maintenance prioritization.
+
 
 
 = Team Plan
