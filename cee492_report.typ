@@ -281,7 +281,6 @@ The analysis is descriptive and observation-weighted: bridges recorded for more 
 
 = Predictive Modeling
 
-= Predictive Modeling
 
 == Task, Features, and Practical Use
 
@@ -393,15 +392,11 @@ The differences in classification performance are further illustrated in @model-
 
 == Discussion and Limitations
 
-The multinomial logistic regression model identified Good-condition bridges more reliably than Fair-condition bridges and missed every Poor-condition bridge in the evaluation (0% recall). Overall accuracy was 70.53%. Averaging recall across the three classes gave a balanced accuracy of 47.12%. For maintenance planning, a Poor-condition bridge classified as Good or Fair could be overlooked when agencies prioritize inspections or repairs.
-
-Class imbalance may partly explain why the model missed the Poor bridges. They accounted for just 5.45% of the labeled records, compared with 36.35% for Fair and 58.20% for Good. The model gave each observation equal weight during training, so the small number of Poor observations may have had limited influence on the fit.
-
+The multinomial logistic regression model identified Good-condition bridges more reliably than Fair-condition bridges and missed every Poor-condition bridge in the evaluation (0% recall). Overall accuracy was 70.53%. Averaging recall across the three classes gave a balanced accuracy of 47.12%. For maintenance planning, a Poor-condition bridge classified as Good or Fair could be overlooked when agencies prioritize inspections or repairs.Class imbalance may partly explain why the model missed the Poor bridges. They accounted for just 5.45% of the labeled records, compared with 36.35% for Fair and 58.20% for Good. The model gave each observation equal weight during training, so the small number of Poor observations may have had limited influence on the fit.
+#v(0.5em)
 The model may also have missed nonlinear relationships and interactions among bridge characteristics. For example, the relationship between age and condition may vary with structural material, bridge design, or traffic demand. The model did not include terms for those interactions. The NBI data used in this analysis also lacked detailed maintenance histories, environmental exposure measurements, and component-level condition ratings that could help explain differences in deterioration.
-
-A next step would be to test whether class weighting improves recall for Poor-condition bridges. Adding interactions among age, structural material, and bridge geometry could help capture some of the relationships the current model misses. A comparison with a random forest could also show whether a more flexible model performs better. Sensitivity analyses could assess how the results change when truck traffic percentage, reporting year, or culvert structures are excluded.
-
-The current model provides a baseline for these comparisons. Before its predictions can inform maintenance priorities, further validation would need to show that Poor-condition bridges can be identified reliably.
+#v(0.5em)
+A next step would be to test whether class weighting improves recall for Poor-condition bridges. Adding interactions among age, structural material, and bridge geometry could help capture some of the relationships the current model misses. A comparison with a random forest could also show whether a more flexible model performs better. Sensitivity analyses could assess how the results change when truck traffic percentage, reporting year, or culvert structures are excluded.The current model provides a baseline for these comparisons. Before its predictions can inform maintenance priorities, further validation would need to show that Poor-condition bridges can be identified reliably.
 
 
 = Team Plan
