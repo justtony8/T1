@@ -33,22 +33,22 @@
       email: "heejaej2@illinois.edu",
     ),
   ),
-  index-terms: ("Optional", "Keywords", "Here"),
+  index-terms: ("bridge condition", "National Bridge Inventory", "classification", "machine learning"),
   bibliography: bibliography("refs.bib"),
 )
 
 = Motivation and problem
 
 
-Bridges are essential components of our transportation system. However, due to budget constraints and limited time and resources for inspections, there are many bridges that need maintenance. Bridge conditions can vary based on several factors, including age, structural features, materials used, and how much traffic passes over them. Therefore, it is necessary to identify those bridges that may require additional maintenance efforts.
+Transportation agencies manage large bridge inventories with limited budgets, time, and inspection resources. Bridge condition varies with age, structural characteristics, material type, and traffic demand, making it important to identify bridges that may require greater maintenance attention.
 #v(0.5em)
-In order to accomplish this, we propose using historical bridge inventory data to predict bridge condition. We believe that if we can identify characteristics associated with bridges in poor condition, we will be able to prioritize inspections, maintenance, and rehabilitation activities. In addition to evaluating the accuracy of predictions made by models developed from this data, we will attempt to determine which bridge characteristics have the strongest relationship with differences in bridge condition.Transportation agencies are responsible for maintaining a large number of bridges while working with limited budgets, time, and inspection resources. Bridge condition can vary depending on factors such as age, structural characteristics, material type, and traffic demand. Therefore, identifying bridges that may require greater maintenance attention is an important part of infrastructure management.
+We propose using historical bridge inventory data to predict bridge condition and identify characteristics associated with poor condition. The resulting models may help prioritize inspections, maintenance, and rehabilitation. We will evaluate predictive performance and determine which bridge characteristics are most strongly associated with condition differences.
 
 
 
 = Data and Prediction Target
 
-This project will use National Bridge Inventory (NBI) data for Illinois, obtained from the Federal Highway Administration's LTBP InfoBridge @fhwa_infobridge.  This data was downloaded in tabular format and includes 582,165 bridge-year observations from 2002 to 2025 with 18 attributes. Each record represents a single bridge for a given year and contains information about identification, ownership, structure, traffic, dimensions, and condition. The data is formatted for use in statistical analyses and predictive modeling. The 18 attributes included in the dataset are summarized in @nbi-attributes and @nbi-attributes-continued. 
+This project will use National Bridge Inventory (NBI) data for Illinois, obtained from the Federal Highway Administration's LTBP InfoBridge @fhwa_infobridge. The tabular dataset includes 582,165 bridge-year observations from 2002 to 2025 with 18 attributes. Each record represents one bridge in one reporting year and contains information about identification, ownership, structure, traffic, dimensions, and condition. The attributes are summarized in @nbi-attributes and @nbi-attributes-continued.
 
 
 
@@ -152,7 +152,7 @@ This project will use National Bridge Inventory (NBI) data for Illinois, obtaine
 ) <nbi-attributes-continued>
 
 #v(0.5em)
-Our primary prediction target is Bridge Condition. Bridge Condition is categorized into three levels: Good, Fair, and Poor. Thus, our prediction task will be treated as a classification problem.While we will use identification variables for organization and tracking purposes, they will not be used as predictive features. Since State Code and State Name are constant for the Illinois-only dataset, they will not be useful for predicting condition either.
+The prediction target is bridge condition, categorized as Good, Fair, or Poor, making this a three-class classification task. Identification variables will be used for organization and tracking but not as predictive features. State Code and State Name are also excluded because they are constant in this Illinois-only dataset.
 
 
 
@@ -197,7 +197,7 @@ Deck width requires special handling: 72,503 records have width zero, and 71,995
 
 == Numeric Distributions
 @summary reports numerical characteristics using available observations. Right-skewness is observed in both traffic and bridge dimensions.
-The median ADT is 309 vehicles/day, the mean ADT is 5,257 vehicle/day, a mean of 5,257, and a maximum of 590,800. Deck area has a median of 1,946 sq. ft. compared with a mean of 5,425 sq. ft. These differences support using medians and interquartile ranges alongside means, and considering logarithmic transformations for traffic and positive geometric variables.
+The median ADT is 309 vehicles/day, the mean is 5,257 vehicles/day, and the maximum is 590,800 vehicles/day. Deck area has a median of 1,946 sq. ft. and a mean of 5,425 sq. ft. These differences support reporting medians and interquartile ranges alongside means and considering logarithmic transformations for traffic and positive geometric variables.
 
 #figure(
 
@@ -258,8 +258,6 @@ Unadjusted material differences may reflect age, design, ownership, and exposure
 
 #figure(image("figures/03_material.svg", width: 100%), caption: [Condition percentages within material groups. Labels give labeled bridge-year counts. The six largest raw material groups are shown separately; smaller groups are pooled. The 193 labeled records with missing material are omitted from this figure. Unadjusted material differences motivate multivariable analysis rather than a causal ranking of materials.]) <material-fig>
 
-The largest design categories are Box Beam or Girders - Multiple (202,962 observations), Stringer/Multi-beam or Girder (167,672), and Culvert (104,985). These design counts include records without a condition label. Together with the width audit, this mix shows that the dataset includes substantially different structural configurations. Material and design should therefore enter the model as categorical predictors. Unadjusted material differences may reflect age, design, ownership, and exposure differences, so they do not establish that any material intrinsically deteriorates faster.
-
 == Traffic and Geometric Characteristics
 Traffic distributions overlap across classes (@traffic-fig). Median ADT is 225 vehicles/day for Good, 650 for Fair, and 350 for Poor observations. Thus, the median does not increase monotonically from Good to Poor.
 
@@ -305,12 +303,8 @@ Planned comparisons will examine the effect of removing truck share, excluding r
 
 = Team Plan
 
-The project work will be divided among team members while major decisions and final results will be reviewed together. One part of the team will focus on data preparation and cleaning, including checking missing values, selecting appropriate predictor variables, and organizing repeated bridge records across years. Another part will focus on exploratory data analysis and visualization to examine patterns between bridge characteristics and condition. The remaining work will focus on predictive model development and evaluation, including training classification models and assessing their performance.
+Project work will be divided among data preparation and validity checks, exploratory analysis and visualization, predictive modeling and evaluation, and report integration. Team members will organize repeated bridge records, define preprocessing and predictor rules, examine condition patterns, train and evaluate classification models, and integrate the results into the report.
 
 #v(0.5em)
 
-All team members will contribute to interpreting the results, reviewing the analysis and code, preparing figures and tables, and writing and editing the final report. This approach will allow each team member to contribute to both the technical analysis and the final presentation of the project.
-
-Project work is organized around data preparation and validity checks, exploratory visualization, predictive modeling, and report integration. The team will jointly review the cross-year identifier mapping, preprocessing rules, split assignments, model results, and final interpretation. Each member will contribute analysis or report changes through the shared GitHub repository, with code and figures reviewed together before final submission.
-
-11/12
+All team members will interpret results, review analyses and code, prepare figures and tables, and edit the final report. The team will jointly review the cross-year identifier mapping, preprocessing rules, split assignments, model results, and final interpretation. Contributions will be managed through the shared GitHub repository, with code, figures, and text reviewed before submission.
