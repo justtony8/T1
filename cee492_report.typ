@@ -438,6 +438,34 @@ Since logistic regression and random forest were evaluated on the same bridge-le
 #v(0.5em)
 
 The K-means results add a different perspective by showing that groups formed without condition labels have different proportions of Good, Fair, and Poor observations. However, a silhouette score measures cluster cohesion and separation, not predictive classification accuracy. It would therefore be inappropriate to rank K-means alongside logistic regression and random forest using the same performance metrics. Taken together, the analyses suggest that nonlinear supervised classification improves test performance and that unsupervised group structure is associated with, but does not uniquely determine, observed bridge condition.
+#v(0.5em)
+
+The three modeling approaches are summarized in @ch4-three-model-table. Logistic regression and random forest were evaluated as supervised classification models, whereas K-means was used to identify groups of bridges with similar characteristics. Random forest achieved the highest classification performance, while K-means identified two clusters with different bridge condition distributions. These results provide complementary insights into bridge condition classification and the underlying structure of the NBI dataset.
+
+#figure(
+  table(
+    columns: (1.15fr, 1.25fr, 1.65fr),
+    align: (left, left, left),
+    table.header(
+      [*Model*],
+      [*Objective*],
+      [*Main Result*],
+    ),
+    [Logistic Regression],
+    [Condition Classification],
+    [Macro-F1: 0.4604],
+
+    [Random Forest],
+    [Condition Classification],
+    [Macro-F1: 0.5317],
+
+    [K-means],
+    [Bridge Clustering],
+    [K = 2; Silhouette: 0.3103],
+  ),
+  caption: [Summary of the three modeling approaches and their main results.]
+) <ch4-three-model-table>
+
 
 == Discussion, Limitations, and Future Work
 
