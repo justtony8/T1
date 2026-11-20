@@ -37,18 +37,17 @@
   bibliography: bibliography("refs.bib"),
 )
 
-= Motivation and problem
+== Introduction
 
+Transportation agencies manage large bridge inventories with limited budgets and inspection resources. Bridge condition data help these agencies identify structures that may require closer review and prioritize maintenance planning. Historical bridge inventory records contain information on age, traffic, materials, structural design, and dimensions. These characteristics provide a basis for examining how well recorded bridge condition can be classified.
 
-Transportation agencies manage large bridge inventories with limited budgets, time, and inspection resources. Bridge condition varies with age, structural characteristics, material type, and traffic demand, making it important to identify bridges that may require greater maintenance attention.
-#v(0.5em)
-We propose using historical bridge inventory data to predict bridge condition and identify characteristics associated with poor condition. The resulting models may help prioritize inspections, maintenance, and rehabilitation. We will evaluate predictive performance and determine which bridge characteristics are most strongly associated with condition differences.
+Previous studies have used National Bridge Inventory (NBI) data to model bridge condition. For example, Almarahlleh et al. @almarahlleh2024 evaluated several machine learning methods, including logistic regression and random forest, to classify concrete bridge deck condition using inspection records from Michigan. The present study examines the overall condition of bridges in Illinois and evaluates model performance on bridges held out from training.
 
+This study asks how accurately bridge inventory characteristics can be used to classify the overall condition of a bridge as Good, Fair, or Poor in the same reporting year. We compared multinomial logistic regression and random forest using a test set composed of bridges excluded from model training and validation. Because Poor observations made up only 5.45% of the labeled records, we evaluated macro-averaged F1 and Poor-class recall alongside overall accuracy. We also used K-means clustering to examine whether groups of records with similar characteristics differed in their condition distributions.
 
+== Data and Prediction Target
 
-= Data and Prediction Target
-
-This project will use National Bridge Inventory (NBI) data for Illinois, obtained from the Federal Highway Administration's LTBP InfoBridge @fhwa_infobridge. The tabular dataset includes 582,165 bridge-year observations from 2002 to 2025 with 18 attributes. Each record represents one bridge in one reporting year and contains information about identification, ownership, structure, traffic, dimensions, and condition. The attributes are summarized in @nbi-attributes and @nbi-attributes-continued.
+We used tabular NBI records for Illinois obtained from the Federal Highway Administration's Long-Term Bridge Performance InfoBridge portal @fhwa_infobridge. The dataset contains 582,165 bridge-year observations from 2002 through 2025 and includes 18 attributes. Each observation represents one bridge in one reporting year. The attributes describe bridge identification, ownership, structural characteristics, traffic, dimensions, and condition. The prediction target was the NBI overall bridge condition category (CAT10), recorded as Good, Fair, or Poor. After excluding 380 observations without a recorded condition category, 581,785 labeled observations remained for supervised analysis. The dataset attributes are described in @nbi-attributes and @nbi-attributes-continued.
 
 
 
