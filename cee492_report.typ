@@ -56,6 +56,7 @@ We used tabular NBI records for Illinois obtained from the Federal Highway Admin
   table(
     columns: (2.2fr, 1.0fr, 4.8fr),
     align: (left, center, left),
+    inset: (x: 3pt, y: 2pt),
 
     table.header(
       [*Attribute Name*],
@@ -103,6 +104,13 @@ We used tabular NBI records for Illinois obtained from the Federal Highway Admin
     [category],
     [Structural design or construction type of the bridge main span, such as beam, girder, truss, arch, or other design types.],
 
+    [45 - Number of Spans in Main Unit],
+    [count],
+    [Number of spans in the main structural unit.],
+
+    [49 - Structure Length],
+    [ft],
+    [Total bridge length measured along its centerline.],
   ),
 ) <nbi-attributes>
 
@@ -117,16 +125,6 @@ We used tabular NBI records for Illinois obtained from the Federal Highway Admin
       [*Units*],
       [*Description*],
     ),
-
-    
-
-    [45 - Number of Spans in Main Unit],
-    [count],
-    [Number of individual spans contained in the main structural unit of the bridge.],
-
-    [49 - Structure Length],
-    [ft],
-    [Total length of the bridge structure measured along its centerline.],
 
     [CAT10 - Bridge Condition],
     [category],
