@@ -197,33 +197,23 @@ Deck width requires special handling: 72,503 records have width zero, and 71,995
 The median ADT is 309 vehicles/day, the mean is 5,257 vehicles/day, and the maximum is 590,800 vehicles/day. Deck area has a median of 1,946 sq. ft. and a mean of 5,425 sq. ft. These differences support reporting medians and interquartile ranges alongside means and considering logarithmic transformations for traffic and positive geometric variables.
 
 #figure(
-
   table(
-
-    columns: (1.25fr, .8fr, .8fr, 1.15fr), align: (left, right, right, right), inset: 3.4pt,
+    columns: (1.25fr, .8fr, .8fr, 1.15fr),
+    align: (left, right, right, right),
+    inset: 3.4pt,
 
     table.header([*Variable*], [*Mean*], [*Median*], [*Q1--Q3*]),
 
     [Age (yr)], [37.82], [33], [20--50],
-
     [ADT (veh/day)], [5,257], [309], [75--3,050],
-
     [Truck share (%)], [9.58], [7], [2--13],
-
     [Valid span count], [2.31], [2], [1--3],
-
     [Length (ft)], [125.25], [65.9], [38.7--132.9],
-
     [Maximum span (ft)], [50.99], [44.9], [26.9--64.0],
-
     [Deck width (ft)], [30.86], [27.6], [24.0--36.1],
-
     [Deck area (sq. ft.)], [5,425], [1,946], [1,147--4,668],
-
   ),
-
-  caption: [Available-case numerical summaries for 2002--2025. Age n = 580,971; truck share n = 499,584; valid span count n = 581,111; all other rows n = 582,165. Coded zeros are retained except for nonpositive span counts. Q1 and Q3 are the 25th and 75th percentiles.],
-
+caption: [Available-case numerical summaries for 2002--2025. Age n = 580,971; truck share n = 499,584; valid span count n = 581,111; all other rows n = 582,165. Coded zeros are retained except for nonpositive span counts. Q1 and Q3 are the 25th and 75th percentiles.],
 ) <summary>
 
 == Condition Distribution and Class Imbalance
